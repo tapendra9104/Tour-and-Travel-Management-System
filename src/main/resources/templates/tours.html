@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+
+    <main class="flex-1" id="toursPage"
+          th:attr="data-initial-search=${initialSearch},data-initial-category=${initialCategory},data-initial-guests=${initialGuests}">
+        <section class="bg-primary py-16">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">Explore Our Tours</h1>
+                <p class="mx-auto max-w-2xl text-primary-foreground/80">
+                    Discover handpicked experiences from around the world, designed to create unforgettable memories.
+                </p>
+            </div>
+        </section>
+
+        <div class="container mx-auto px-4 py-8">
+            <div class="flex flex-col gap-8 lg:flex-row">
+                <aside class="hidden w-72 shrink-0 lg:block">
+                    <div class="sticky top-24 rounded-xl bg-card p-6 shadow-sm">
+                        <h2 class="mb-6 text-lg font-semibold">Filters</h2>
+                        <div th:replace="~{fragments/tour-filters :: filterContent('desktop')}"></div>
+                    </div>
+                </aside>
+
+                <div class="flex-1">
+                    <div class="mb-6 flex flex-col gap-4 sm:flex-row">
+                        <div class="relative flex-1">
+                            <svg class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="11" cy="11" r="8"></circle>
+                                <path d="m21 21-4.3-4.3"></path>
+                            </svg>
+                            <input id="searchQuery" type="text" placeholder="Search tours, destinations..." class="h-10 w-full rounded-md border border-border bg-background pl-10 pr-4">
+                        </div>
+
+                        <div class="flex gap-2">
+                            <button type="button" class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-medium lg:hidden" data-sheet-trigger="mobile-filters">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <line x1="4" x2="20" y1="21" y2="21"></line>
+                                    <line x1="4" x2="20" y1="14" y2="14"></line>
+                                    <line x1="4" x2="20" y1="7" y2="7"></line>
+                                    <line x1="14" x2="14" y1="17" y2="21"></line>
+                                    <line x1="10" x2="10" y1="10" y2="14"></line>
+                                    <line x1="8" x2="8" y1="3" y2="7"></line>
+                                </svg>
+                                Filters
+                                <span id="mobileFiltersDot" class="hidden h-2 w-2 rounded-full bg-primary"></span>
+                            </button>
+
+                            <select id="sortBy" class="h-10 w-[180px] rounded-md border border-border bg-background px-3 text-sm">
+                                <option value="featured">Featured</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="rating">Highest Rated</option>
+                                <option value="duration">Duration</option>
+                            </select>
+
+                            <div class="hidden overflow-hidden rounded-lg border sm:flex">
+                                <button id="gridViewBtn" type="button" class="inline-flex h-10 w-10 items-center justify-center bg-secondary">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <rect x="3" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="3" width="7" height="7"></rect>
+                                        <rect x="14" y="14" width="7" height="7"></rect>
+                                        <rect x="3" y="14" width="7" height="7"></rect>
+                                    </svg>
+                                </button>
+                                <button id="listViewBtn" type="button" class="inline-flex h-10 w-10 items-center justify-center bg-background">
+                                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                        <line x1="8" x2="21" y1="6" y2="6"></line>
+                                        <line x1="8" x2="21" y1="12" y2="12"></line>
+                                        <line x1="8" x2="21" y1="18" y2="18"></line>
+                                        <line x1="3" x2="3.01" y1="6" y2="6"></line>
+                                        <line x1="3" x2="3.01" y1="12" y2="12"></line>
+                                        <line x1="3" x2="3.01" y1="18" y2="18"></line>
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p class="mb-6 text-muted-foreground">
+                        Showing <span id="resultsCount" th:text="${#lists.size(tours)}">8</span> of <span th:text="${#lists.size(tours)}">8</span> tours
+                    </p>
+
+                    <div id="toursContainer" class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+                        <th:block th:each="tour : ${tours}">
+                            <div th:replace="~{fragments/tour-card :: tourCard(${tour})}"></div>
+                        </th:block>
+                    </div>
+
+                    <div id="noResults" class="hidden rounded-xl border border-dashed bg-card p-12 text-center">
+                        <p class="mb-2 text-lg font-medium">No tours found</p>
+                        <p class="mb-4 text-muted-foreground">Try adjusting your filters or search query</p>
+                        <button type="button" id="clearEmptyFilters" class="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium">
+                            Clear Filters
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="fixed inset-0 z-[70] hidden lg:hidden" data-sheet="mobile-filters" aria-hidden="true">
+            <div class="absolute inset-0 bg-black/50" data-sheet-close></div>
+            <div class="absolute left-0 top-0 h-full w-[300px] -translate-x-full bg-background p-6 shadow-xl transition-transform duration-300" data-sheet-panel data-sheet-direction="left">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-lg font-semibold">Filters</h2>
+                    <button type="button" class="inline-flex h-10 w-10 items-center justify-center rounded-md hover:bg-secondary" data-sheet-close>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M18 6 6 18"></path>
+                            <path d="m6 6 12 12"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="mt-6">
+                    <div th:replace="~{fragments/tour-filters :: filterContent('mobile')}"></div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+
+<script id="tours-data" type="application/json" th:utext="${toursJson}"></script>
+<script defer th:src="@{/js/tours.js}"></script>
+</body>
+</html>

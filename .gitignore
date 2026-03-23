@@ -1,0 +1,12 @@
+/target/
+/node_modules/
+/source-original/
+/.idea/
+/.vscode/
+/.DS_Store
+/source-original/.next/
+/source-original/node_modules/
+/output/
+/.playwright-cli/
+/*.log
+/test-results/

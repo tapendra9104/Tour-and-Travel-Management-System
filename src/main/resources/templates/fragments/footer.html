@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer th:fragment="siteFooter" class="bg-foreground text-background">
+    <div class="container mx-auto px-4 py-16">
+        <div class="grid grid-cols-1 gap-12 md:grid-cols-2 lg:grid-cols-4">
+            <div class="space-y-4">
+                <a th:href="@{/}" class="flex items-center gap-2">
+                    <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                         stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M10 20a7.967 7.967 0 0 1-5-2l-3-3 3-3a7.967 7.967 0 0 1 5-2h4a7.967 7.967 0 0 1 5 2l3 3-3 3a7.967 7.967 0 0 1-5 2z"></path>
+                        <path d="M10 12V4l4 4"></path>
+                    </svg>
+                    <span class="text-xl font-semibold">Wanderlust</span>
+                </a>
+                <p class="text-sm leading-relaxed text-background/70">
+                    Discover extraordinary destinations and create unforgettable memories with our expertly curated travel experiences.
+                </p>
+            </div>
+
+            <div>
+                <h4 class="mb-4 font-semibold">Quick Links</h4>
+                <ul class="space-y-3">
+                    <li><a th:href="@{/tours}" class="text-sm text-background/70 transition-colors hover:text-background">Tours</a></li>
+                    <li><a th:href="@{/destinations}" class="text-sm text-background/70 transition-colors hover:text-background">Destinations</a></li>
+                    <li><a th:href="@{/about}" class="text-sm text-background/70 transition-colors hover:text-background">About Us</a></li>
+                    <li><a th:href="@{/contact}" class="text-sm text-background/70 transition-colors hover:text-background">Contact</a></li>
+                    <li><a th:href="@{/dashboard}" class="text-sm text-background/70 transition-colors hover:text-background">My Bookings</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="mb-4 font-semibold">Destinations</h4>
+                <ul class="space-y-3">
+                    <li><a th:href="@{/destinations}" class="text-sm text-background/70 transition-colors hover:text-background">Europe</a></li>
+                    <li><a th:href="@{/destinations}" class="text-sm text-background/70 transition-colors hover:text-background">Asia</a></li>
+                    <li><a th:href="@{/destinations}" class="text-sm text-background/70 transition-colors hover:text-background">Africa</a></li>
+                    <li><a th:href="@{/destinations}" class="text-sm text-background/70 transition-colors hover:text-background">South America</a></li>
+                    <li><a th:href="@{/tours}" class="text-sm text-background/70 transition-colors hover:text-background">Adventure Tours</a></li>
+                </ul>
+            </div>
+
+            <div>
+                <h4 class="mb-4 font-semibold">Contact Us</h4>
+                <ul class="space-y-3">
+                    <li class="flex items-center gap-3 text-sm text-background/70">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                             stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"></path>
+                            <circle cx="12" cy="10" r="3"></circle>
+                        </svg>
+                        <span>123 Travel Street, Adventure City</span>
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-background/70">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                             stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.86 19.86 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6A19.86 19.86 0 0 1 2.08 4.18 2 2 0 0 1 4.06 2h3a2 2 0 0 1 2 1.72c.12.9.35 1.78.68 2.61a2 2 0 0 1-.45 2.11L8.1 9.91a16 16 0 0 0 6 6l1.47-1.19a2 2 0 0 1 2.11-.45c.83.33 1.71.56 2.61.68A2 2 0 0 1 22 16.92z"></path>
+                        </svg>
+                        <span>+1 (555) 123-4567</span>
+                    </li>
+                    <li class="flex items-center gap-3 text-sm text-background/70">
+                        <svg class="h-4 w-4 shrink-0" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                             stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M4 4h16v16H4z"></path>
+                            <path d="m22 6-10 7L2 6"></path>
+                        </svg>
+                        <span>hello@wanderlust.com</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="mt-12 flex flex-col items-center justify-between gap-4 border-t border-background/20 pt-8 md:flex-row">
+            <p class="text-sm text-background/60">&copy; 2026 Wanderlust Travels. All rights reserved.</p>
+            <div class="flex gap-6">
+                <a href="#" class="text-sm text-background/60 transition-colors hover:text-background">Privacy Policy</a>
+                <a href="#" class="text-sm text-background/60 transition-colors hover:text-background">Terms of Service</a>
+            </div>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

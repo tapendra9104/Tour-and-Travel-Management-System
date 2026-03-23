@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+    <main class="flex-1">
+        <section class="bg-primary py-16">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">Travel Thoughtfully. Explore Boldly.</h1>
+                <p class="mx-auto max-w-2xl text-primary-foreground/80">
+                    Wanderlust builds curated experiences for travelers who want exceptional planning, trusted support, and unforgettable memories.
+                </p>
+            </div>
+        </section>
+
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 gap-8 lg:grid-cols-[1.2fr_0.8fr]">
+                    <article class="rounded-2xl bg-card p-8 shadow-sm">
+                        <p class="mb-4 text-sm font-medium uppercase tracking-wide text-primary">Our Story</p>
+                        <h2 class="mb-6 text-3xl font-bold text-balance">Built for travelers who expect more than a package tour.</h2>
+                        <div class="space-y-4 text-muted-foreground">
+                            <p>We combine destination expertise, thoughtful itinerary design, and strong operational support so every booking feels smooth from discovery to departure.</p>
+                            <p>Our team works with trusted local partners, carefully selected accommodations, and expert guides to deliver journeys that feel elevated without losing authenticity.</p>
+                            <p>This rebuilt platform now runs on a dedicated Java backend with persistent booking management, making it production-friendly while preserving the original visual experience.</p>
+                        </div>
+                    </article>
+
+                    <aside class="grid grid-cols-2 gap-4">
+                        <div class="rounded-2xl bg-secondary/50 p-6">
+                            <p class="text-sm text-muted-foreground">Happy Travelers</p>
+                            <p class="mt-2 text-3xl font-bold" th:text="${stats.travelers}">25K+</p>
+                        </div>
+                        <div class="rounded-2xl bg-secondary/50 p-6">
+                            <p class="text-sm text-muted-foreground">Destinations</p>
+                            <p class="mt-2 text-3xl font-bold" th:text="${stats.destinations}">60+</p>
+                        </div>
+                        <div class="rounded-2xl bg-secondary/50 p-6">
+                            <p class="text-sm text-muted-foreground">Guest Rating</p>
+                            <p class="mt-2 text-3xl font-bold" th:text="${stats.rating}">4.9/5</p>
+                        </div>
+                        <div class="rounded-2xl bg-secondary/50 p-6">
+                            <p class="text-sm text-muted-foreground">Support</p>
+                            <p class="mt-2 text-3xl font-bold" th:text="${stats.support}">24/7</p>
+                        </div>
+                    </aside>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+</body>
+</html>

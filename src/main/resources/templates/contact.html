@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+    <main class="flex-1">
+        <section class="bg-primary py-16">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">Contact Our Travel Team</h1>
+                <p class="mx-auto max-w-2xl text-primary-foreground/80">
+                    Reach out for itinerary guidance, custom planning, or support with an existing reservation.
+                </p>
+            </div>
+        </section>
+
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 gap-8 lg:grid-cols-[0.9fr_1.1fr]">
+                    <aside class="space-y-4 rounded-2xl bg-card p-8 shadow-sm">
+                        <h2 class="text-2xl font-bold">Get in Touch</h2>
+                        <p class="text-muted-foreground">Our advisors are available around the clock for urgent booking questions and destination planning.</p>
+                        <div class="space-y-4 pt-4">
+                            <div class="rounded-xl bg-secondary/50 p-4">
+                                <p class="text-sm text-muted-foreground">Phone</p>
+                                <p class="mt-1 font-semibold">+1 (555) 123-4567</p>
+                            </div>
+                            <div class="rounded-xl bg-secondary/50 p-4">
+                                <p class="text-sm text-muted-foreground">Email</p>
+                                <p class="mt-1 font-semibold">hello@wanderlust.com</p>
+                            </div>
+                            <div class="rounded-xl bg-secondary/50 p-4">
+                                <p class="text-sm text-muted-foreground">Office</p>
+                                <p class="mt-1 font-semibold">123 Travel Street, Adventure City</p>
+                            </div>
+                        </div>
+                    </aside>
+
+                    <section class="rounded-2xl bg-card p-8 shadow-sm">
+                        <h2 class="mb-6 text-2xl font-bold">Send an Inquiry</h2>
+                        <form id="contactForm" class="grid grid-cols-1 gap-4 md:grid-cols-2">
+                            <input id="contactName" name="customerName" type="text" placeholder="Full Name" th:value="${currentUserName}" required autocomplete="name" maxlength="120" class="h-12 rounded-lg border border-border bg-background px-4">
+                            <input id="contactEmail" name="email" type="email" placeholder="Email Address" th:value="${currentUserEmail}" required autocomplete="email" inputmode="email" class="h-12 rounded-lg border border-border bg-background px-4">
+                            <input id="contactPhone" name="phone" type="tel" placeholder="Phone Number" th:value="${currentUserPhone}" required autocomplete="tel" inputmode="tel" maxlength="30" class="h-12 rounded-lg border border-border bg-background px-4">
+                            <input id="contactDestination" name="destination" type="text" placeholder="Destination of Interest" maxlength="120" class="h-12 rounded-lg border border-border bg-background px-4">
+                            <input id="contactTravelWindow" name="travelWindow" type="text" placeholder="Travel Window" maxlength="80" class="h-12 rounded-lg border border-border bg-background px-4">
+                            <select id="contactTravelers" name="travelers" class="h-12 rounded-lg border border-border bg-background px-4">
+                                <option value="1">1 Traveler</option>
+                                <option value="2" selected>2 Travelers</option>
+                                <option value="4">4 Travelers</option>
+                                <option value="6">6 Travelers</option>
+                                <option value="10">10 Travelers</option>
+                            </select>
+                            <textarea id="contactMessage" name="message" rows="6" placeholder="How can we help?" required maxlength="2000" class="rounded-lg border border-border bg-background p-4 md:col-span-2"></textarea>
+                            <div id="contactError" aria-live="assertive" class="hidden rounded-lg bg-destructive/10 p-3 text-sm text-destructive md:col-span-2"></div>
+                            <div id="contactSuccess" aria-live="polite" class="hidden rounded-lg bg-primary/10 p-3 text-sm text-primary md:col-span-2">
+                                Your inquiry has been received. Our travel team will reach out shortly.
+                            </div>
+                            <button type="submit" class="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-6 font-medium text-primary-foreground transition-colors hover:bg-primary/90 md:col-span-2">
+                                Send Message
+                            </button>
+                        </form>
+                    </section>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+
+<script defer th:src="@{/js/contact.js}"></script>
+</body>
+</html>

@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+    <main class="flex-1">
+        <section class="bg-primary py-16">
+            <div class="container mx-auto px-4 text-center">
+                <h1 class="mb-4 text-3xl font-bold text-primary-foreground md:text-4xl">Explore by Destination</h1>
+                <p class="mx-auto max-w-2xl text-primary-foreground/80">
+                    Browse our curated regions and discover journeys tailored to every travel style.
+                </p>
+            </div>
+        </section>
+
+        <section class="py-16">
+            <div class="container mx-auto px-4">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2">
+                    <article th:each="region : ${regions}" class="rounded-2xl bg-card p-8 shadow-sm">
+                        <h2 class="mb-3 text-2xl font-bold" th:text="${region.name}">Europe</h2>
+                        <p class="mb-6 text-muted-foreground">Trending countries travelers are booking with us right now.</p>
+                        <div class="flex flex-wrap gap-3">
+                            <span th:each="country : ${region.countries}" class="inline-flex items-center rounded-full bg-secondary px-4 py-2 text-sm font-medium" th:text="${country}">Switzerland</span>
+                        </div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-secondary/50 py-20">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 text-center">
+                    <p class="mb-2 text-sm font-medium uppercase tracking-wide text-primary">Popular Picks</p>
+                    <h2 class="text-3xl font-bold text-balance md:text-4xl">Inspiration From Our Catalog</h2>
+                </div>
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+                    <th:block th:each="tour : ${featuredTours}">
+                        <div th:replace="~{fragments/tour-card :: tourCard(${tour})}"></div>
+                    </th:block>
+                </div>
+            </div>
+        </section>
+    </main>
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+</body>
+</html>

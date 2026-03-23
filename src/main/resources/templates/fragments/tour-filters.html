@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<th:block th:fragment="filterContent(prefix)">
+    <div class="space-y-6">
+        <div>
+            <h3 class="mb-3 font-semibold">Categories</h3>
+            <div class="space-y-2">
+                <button th:each="category : ${categories}"
+                        type="button"
+                        class="category-btn flex w-full items-center justify-between rounded-lg px-3 py-2 text-sm transition-colors hover:bg-secondary"
+                        th:attr="data-category-btn=${category.name},data-filter-prefix=${prefix}">
+                    <span th:text="${category.name}">Adventure</span>
+                    <span class="text-xs opacity-70" th:text="${category.count}">3</span>
+                </button>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="mb-3 font-semibold">Price Range</h3>
+            <div class="price-slider">
+                <div class="price-slider-track"></div>
+                <div class="price-slider-range" th:attr="data-price-range=${prefix}"></div>
+                <input type="range" min="0" max="6000" step="100" value="0" th:attr="data-price-min=${prefix}">
+                <input type="range" min="0" max="6000" step="100" value="6000" th:attr="data-price-max=${prefix}">
+            </div>
+            <div class="mt-3 flex justify-between text-sm text-muted-foreground">
+                <span th:attr="data-price-label-min=${prefix}">$0</span>
+                <span th:attr="data-price-label-max=${prefix}">$6000</span>
+            </div>
+        </div>
+
+        <div>
+            <h3 class="mb-3 font-semibold">Difficulty</h3>
+            <div class="space-y-2">
+                <label class="flex cursor-pointer items-center gap-3">
+                    <input type="checkbox" value="Easy" class="h-4 w-4 rounded border-border" th:attr="data-difficulty=${prefix}">
+                    <span class="text-sm">Easy</span>
+                </label>
+                <label class="flex cursor-pointer items-center gap-3">
+                    <input type="checkbox" value="Moderate" class="h-4 w-4 rounded border-border" th:attr="data-difficulty=${prefix}">
+                    <span class="text-sm">Moderate</span>
+                </label>
+                <label class="flex cursor-pointer items-center gap-3">
+                    <input type="checkbox" value="Challenging" class="h-4 w-4 rounded border-border" th:attr="data-difficulty=${prefix}">
+                    <span class="text-sm">Challenging</span>
+                </label>
+            </div>
+        </div>
+
+        <button type="button" class="hidden w-full items-center justify-center gap-2 rounded-md border border-border px-4 py-2 text-sm font-medium" th:attr="data-clear-filters=${prefix}">
+            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M18 6 6 18"></path>
+                <path d="m6 6 12 12"></path>
+            </svg>
+            Clear All Filters
+        </button>
+    </div>
+</th:block>
+</body>
+</html>

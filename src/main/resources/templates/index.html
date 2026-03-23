@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+
+    <main class="flex-1">
+        <section class="relative flex min-h-[85vh] items-center">
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1920&q=80"
+                     alt="Beautiful travel destination"
+                     class="h-full w-full object-cover">
+                <div class="absolute inset-0 bg-gradient-to-r from-black/70 via-black/50 to-transparent"></div>
+            </div>
+
+            <div class="container relative z-10 mx-auto px-4">
+                <div class="max-w-2xl">
+                    <p class="mb-4 text-primary font-medium uppercase tracking-wide">Your Journey Begins Here</p>
+                    <h1 class="mb-6 text-4xl font-bold leading-tight text-white text-balance md:text-5xl lg:text-6xl">
+                        Discover the World's Most Breathtaking Destinations
+                    </h1>
+                    <p class="mb-8 max-w-xl text-lg leading-relaxed text-white/80">
+                        From pristine beaches to majestic mountains, explore handpicked experiences designed to create memories that last a lifetime.
+                    </p>
+                    <div class="flex flex-wrap gap-4">
+                        <a th:href="@{/tours}"
+                           class="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-primary px-6 text-base font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
+                            Explore Tours
+                            <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12h14"></path>
+                                <path d="m12 5 7 7-7 7"></path>
+                            </svg>
+                        </a>
+                        <button type="button"
+                                class="inline-flex h-11 items-center justify-center rounded-md border border-white/30 bg-white/10 px-6 text-base font-medium text-white transition-colors hover:bg-white/20">
+                            Watch Video
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="relative z-20 -mt-12 pb-16">
+            <div class="container mx-auto px-4">
+                <form method="get" th:action="@{/tours}" class="mx-auto w-full max-w-4xl rounded-2xl bg-card p-6 shadow-lg">
+                    <div class="grid grid-cols-1 gap-4 md:grid-cols-4">
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"></path>
+                                    <circle cx="12" cy="10" r="3"></circle>
+                                </svg>
+                                Destination
+                            </label>
+                            <input type="text" name="search" placeholder="Where to?" class="h-12 w-full rounded-lg border-0 bg-secondary/50 px-4">
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M8 2v4"></path>
+                                    <path d="M16 2v4"></path>
+                                    <rect x="3" y="4" width="18" height="18" rx="2"></rect>
+                                    <path d="M3 10h18"></path>
+                                </svg>
+                                Tour Type
+                            </label>
+                            <select name="category" class="h-12 w-full rounded-lg border-0 bg-secondary/50 px-4">
+                                <option value="">Select type</option>
+                                <option value="Adventure">Adventure</option>
+                                <option value="Cultural">Cultural</option>
+                                <option value="Relaxation">Relaxation</option>
+                                <option value="Wildlife">Wildlife</option>
+                                <option value="City Break">City Break</option>
+                            </select>
+                        </div>
+
+                        <div class="space-y-2">
+                            <label class="flex items-center gap-2 text-xs font-medium uppercase tracking-wide text-muted-foreground">
+                                <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                                    <circle cx="9" cy="7" r="4"></circle>
+                                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                                </svg>
+                                Travelers
+                            </label>
+                            <select name="guests" class="h-12 w-full rounded-lg border-0 bg-secondary/50 px-4">
+                                <option value="">Guests</option>
+                                <option value="1">1 Traveler</option>
+                                <option value="2">2 Travelers</option>
+                                <option value="3">3 Travelers</option>
+                                <option value="4">4 Travelers</option>
+                                <option value="5+">5+ Travelers</option>
+                            </select>
+                        </div>
+
+                        <div class="flex items-end">
+                            <button type="submit" class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-primary px-6 text-base font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
+                                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                    <circle cx="11" cy="11" r="8"></circle>
+                                    <path d="m21 21-4.3-4.3"></path>
+                                </svg>
+                                Search
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+        <section class="bg-card py-20">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 text-center">
+                    <p class="mb-2 text-sm font-medium uppercase tracking-wide text-primary">What We Offer</p>
+                    <h2 class="text-3xl font-bold text-balance md:text-4xl">Complete Travel Solutions</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <article class="rounded-xl bg-background p-6 text-center shadow-sm transition-shadow hover:shadow-md">
+                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M2.5 19.5 21 12 2.5 4.5l3.5 7.5-3.5 7.5z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Flight Booking</h3>
+                        <p class="text-sm text-muted-foreground">Find the best deals on flights worldwide</p>
+                    </article>
+                    <article class="rounded-xl bg-background p-6 text-center shadow-sm transition-shadow hover:shadow-md">
+                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M3 10v11"></path>
+                                <path d="M21 10v11"></path>
+                                <path d="M7 10V4h10v6"></path>
+                                <path d="M3 10h18"></path>
+                                <path d="M7 15h.01"></path>
+                                <path d="M7 18h.01"></path>
+                                <path d="M12 15h.01"></path>
+                                <path d="M12 18h.01"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Accommodations</h3>
+                        <p class="text-sm text-muted-foreground">From luxury resorts to cozy boutique stays</p>
+                    </article>
+                    <article class="rounded-xl bg-background p-6 text-center shadow-sm transition-shadow hover:shadow-md">
+                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Guided Tours</h3>
+                        <p class="text-sm text-muted-foreground">Expert-led experiences in every destination</p>
+                    </article>
+                    <article class="rounded-xl bg-background p-6 text-center shadow-sm transition-shadow hover:shadow-md">
+                        <div class="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M23 19V7a2 2 0 0 0-2-2h-4l-3-3H8L5 5H3a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h18a2 2 0 0 0 2-2z"></path>
+                                <circle cx="12" cy="13" r="4"></circle>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Local Experiences</h3>
+                        <p class="text-sm text-muted-foreground">Authentic cultural activities and adventures</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 flex flex-col justify-between gap-4 md:flex-row md:items-end">
+                    <div>
+                        <p class="mb-2 text-sm font-medium uppercase tracking-wide text-primary">Featured Tours</p>
+                        <h2 class="text-3xl font-bold text-balance md:text-4xl">Popular Destinations</h2>
+                    </div>
+                    <a th:href="@{/tours}" class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary">
+                        View All Tours
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </a>
+                </div>
+
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-4">
+                    <th:block th:each="tour : ${featuredTours}">
+                        <div th:replace="~{fragments/tour-card :: tourCard(${tour})}"></div>
+                    </th:block>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-secondary/50 py-20">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 text-center">
+                    <p class="mb-2 text-sm font-medium uppercase tracking-wide text-primary">Browse by Category</p>
+                    <h2 class="text-3xl font-bold text-balance md:text-4xl">Find Your Perfect Adventure</h2>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-6">
+                    <a th:each="category : ${categories}" th:if="${category.name != 'All'}"
+                       th:href="@{/tours(category=${category.name})}"
+                       class="rounded-xl bg-card p-6 text-center shadow-sm transition-all hover:-translate-y-1 hover:shadow-md">
+                        <h3 class="mb-1 font-semibold" th:text="${category.name}">Adventure</h3>
+                        <p class="text-sm text-muted-foreground" th:text="|${category.count} Tours|">3 Tours</p>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="relative py-24">
+            <div class="absolute inset-0 z-0">
+                <img src="https://images.unsplash.com/photo-1469854523086-cc02fe5d8800?w=1920&q=80" alt="Road trip adventure" class="h-full w-full object-cover">
+                <div class="absolute inset-0 bg-primary/90"></div>
+            </div>
+
+            <div class="container relative z-10 mx-auto px-4 text-center">
+                <h2 class="mb-4 text-3xl font-bold text-primary-foreground text-balance md:text-4xl">Ready to Start Your Adventure?</h2>
+                <p class="mx-auto mb-8 max-w-2xl text-lg text-primary-foreground/80">
+                    Join thousands of happy travelers who have discovered their dream destinations with us.
+                </p>
+                <div class="flex flex-wrap justify-center gap-4">
+                    <a th:href="@{/tours}" class="inline-flex h-11 items-center justify-center gap-2 rounded-md bg-secondary px-6 text-base font-medium text-secondary-foreground transition-colors hover:bg-secondary/90">
+                        Browse All Tours
+                        <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12h14"></path>
+                            <path d="m12 5 7 7-7 7"></path>
+                        </svg>
+                    </a>
+                    <a th:href="@{/contact}" class="inline-flex h-11 items-center justify-center rounded-md border border-primary-foreground/30 px-6 text-base font-medium text-primary-foreground transition-colors hover:bg-primary-foreground/10">
+                        Contact Us
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-card py-20">
+            <div class="container mx-auto px-4">
+                <div class="mb-12 text-center">
+                    <p class="mb-2 text-sm font-medium uppercase tracking-wide text-primary">Why Choose Us</p>
+                    <h2 class="text-3xl font-bold text-balance md:text-4xl">Travel with Confidence</h2>
+                </div>
+
+                <div class="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
+                    <article class="text-center">
+                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Secure Booking</h3>
+                        <p class="text-sm text-muted-foreground">Your payments are protected with industry-leading security</p>
+                    </article>
+                    <article class="text-center">
+                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Flexible Cancellation</h3>
+                        <p class="text-sm text-muted-foreground">Free cancellation up to 24 hours before your trip</p>
+                    </article>
+                    <article class="text-center">
+                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M12 8v8"></path>
+                                <path d="M8.5 14h7"></path>
+                                <path d="M12 2 4 6v6c0 5 3.5 9.5 8 10 4.5-.5 8-5 8-10V6z"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">Best Price Guarantee</h3>
+                        <p class="text-sm text-muted-foreground">Find a lower price? We'll match it plus 10% back</p>
+                    </article>
+                    <article class="text-center">
+                        <div class="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-full bg-primary/10">
+                            <svg class="h-8 w-8 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M22 12a10 10 0 1 1-4-8"></path>
+                                <path d="m9 11 3 3L22 4"></path>
+                            </svg>
+                        </div>
+                        <h3 class="mb-2 text-lg font-semibold">24/7 Support</h3>
+                        <p class="text-sm text-muted-foreground">Our travel experts are here to help around the clock</p>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <section class="py-20">
+            <div class="container mx-auto px-4">
+                <div class="rounded-2xl border-0 bg-secondary/50 p-8 text-center md:p-12">
+                    <h2 class="mb-4 text-2xl font-bold text-balance md:text-3xl">Get Exclusive Travel Deals</h2>
+                    <p class="mx-auto mb-6 max-w-lg text-muted-foreground">
+                        Subscribe to our newsletter for the latest offers, travel tips, and destination inspiration.
+                    </p>
+                    <form class="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
+                        <input type="email" placeholder="Enter your email" class="h-12 flex-1 rounded-lg border border-border bg-background px-4">
+                        <button type="submit" class="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-6 font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                            Subscribe
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+</body>
+</html>

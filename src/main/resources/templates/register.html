@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+
+    <main class="flex-1 bg-secondary/30">
+        <div class="container mx-auto px-4 py-16">
+            <div class="mx-auto max-w-md rounded-2xl bg-card p-8 shadow-sm">
+                <div class="mb-8 text-center">
+                    <h1 class="text-3xl font-bold">Create Account</h1>
+                    <p class="mt-2 text-muted-foreground">Save your traveler details and manage bookings securely.</p>
+                </div>
+
+                <div th:if="${formError}" class="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive" th:text="${formError}">
+                    Registration failed
+                </div>
+                <div th:if="${hasValidationErrors}" class="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive">
+                    Please correct the highlighted fields and try again.
+                </div>
+
+                <form th:action="@{/register}" th:object="${registrationForm}" method="post" class="space-y-4">
+                    <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+                    <div class="space-y-2">
+                        <label for="fullName" class="text-sm font-medium">Full Name</label>
+                        <input id="fullName" th:field="*{fullName}" type="text" required class="h-11 w-full rounded-lg border border-border bg-background px-4">
+                        <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-xs text-destructive"></p>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="email" class="text-sm font-medium">Email</label>
+                        <input id="email" th:field="*{email}" type="email" required class="h-11 w-full rounded-lg border border-border bg-background px-4">
+                        <p th:if="${#fields.hasErrors('email')}" th:errors="*{email}" class="text-xs text-destructive"></p>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="phone" class="text-sm font-medium">Phone</label>
+                        <input id="phone" th:field="*{phone}" type="tel" class="h-11 w-full rounded-lg border border-border bg-background px-4">
+                        <p th:if="${#fields.hasErrors('phone')}" th:errors="*{phone}" class="text-xs text-destructive"></p>
+                    </div>
+                    <div class="space-y-2">
+                        <label for="password" class="text-sm font-medium">Password</label>
+                        <input id="password" th:field="*{password}" type="password" required class="h-11 w-full rounded-lg border border-border bg-background px-4">
+                        <p class="text-xs text-muted-foreground">Use at least 8 characters with uppercase, lowercase, and a number.</p>
+                        <p th:if="${#fields.hasErrors('password')}" th:errors="*{password}" class="text-xs text-destructive"></p>
+                    </div>
+                    <button type="submit" class="inline-flex h-11 w-full items-center justify-center rounded-lg bg-primary px-4 text-base font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                        Create Account
+                    </button>
+                </form>
+
+                <p class="mt-6 text-center text-sm text-muted-foreground">
+                    Already have an account?
+                    <a th:href="@{/login}" class="font-medium text-primary hover:underline">Sign in</a>
+                </p>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,11 @@
+{
+  "name": "wanderlust-travels-assets",
+  "private": true,
+  "scripts": {
+    "build:css": "tailwindcss -i ./src/main/resources/static/css/source.css -o ./src/main/resources/static/css/app.css --minify"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.1.11",
+    "tailwindcss": "^4.1.11"
+  }
+}

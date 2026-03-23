@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<body>
+<a th:fragment="tourCard(tour)"
+   th:href="@{/tours/{id}(id=${tour.id})}"
+   class="block">
+    <article class="group overflow-hidden rounded-xl border-0 bg-card shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-lg">
+        <div class="relative aspect-[4/3] overflow-hidden">
+            <img th:src="${tour.image}" th:alt="${tour.title}" class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105">
+            <div class="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+            <span class="absolute left-4 top-4 inline-flex items-center rounded-full bg-primary px-3 py-1 text-xs font-medium text-primary-foreground"
+                  th:text="${tour.category}">Adventure</span>
+            <span th:if="${tour.originalPrice != null}"
+                  class="absolute right-4 top-4 inline-flex items-center rounded-full bg-destructive px-3 py-1 text-xs font-medium text-white"
+                  th:text="|Save $${#numbers.formatDecimal(tour.originalPrice - tour.price, 0, 'COMMA', 0, 'POINT')}|">Save $500</span>
+            <div class="absolute bottom-4 left-4 right-4">
+                <p class="flex items-center gap-1.5 text-sm text-white/80">
+                    <svg class="h-3.5 w-3.5" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                         stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0Z"></path>
+                        <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                    <span th:text="|${tour.destination}, ${tour.country}|">Swiss Alps, Switzerland</span>
+                </p>
+            </div>
+        </div>
+        <div class="p-5">
+            <h3 class="mb-2 line-clamp-1 text-lg font-semibold transition-colors group-hover:text-primary"
+                th:text="${tour.title}">Majestic Swiss Alps Adventure</h3>
+
+            <div class="mb-4 flex items-center gap-4 text-sm text-muted-foreground">
+                <span class="flex items-center gap-1">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                         stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span th:text="${tour.duration}">7 Days</span>
+                </span>
+                <span class="flex items-center gap-1">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                         stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span th:text="|Max ${tour.maxGroupSize}|">Max 12</span>
+                </span>
+            </div>
+
+            <div class="flex items-center justify-between">
+                <div class="flex items-center gap-1.5">
+                    <svg class="h-4 w-4 fill-accent text-accent" viewBox="0 0 24 24" aria-hidden="true">
+                        <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon>
+                    </svg>
+                    <span class="font-medium" th:text="${tour.rating}">4.9</span>
+                    <span class="text-sm text-muted-foreground" th:text="|(${tour.reviews})|">(234)</span>
+                </div>
+                <div class="text-right">
+                    <span th:if="${tour.originalPrice != null}"
+                          class="mr-2 text-sm text-muted-foreground line-through"
+                          th:text="|$${#numbers.formatDecimal(tour.originalPrice, 0, 'COMMA', 0, 'POINT')}|">$2999</span>
+                    <span class="text-lg font-bold text-primary"
+                          th:text="|$${#numbers.formatDecimal(tour.price, 0, 'COMMA', 0, 'POINT')}|">$2499</span>
+                    <span class="text-sm text-muted-foreground">/person</span>
+                </div>
+            </div>
+        </div>
+    </article>
+</a>
+</body>
+</html>

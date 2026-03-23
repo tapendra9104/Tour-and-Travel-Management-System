@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head('Something Went Wrong')}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+
+    <main class="flex-1 bg-secondary/30">
+        <div class="container mx-auto px-4 py-16">
+            <div class="mx-auto max-w-2xl rounded-2xl bg-card p-8 shadow-sm">
+                <div class="mb-6">
+                    <p class="text-sm font-medium uppercase tracking-[0.2em] text-muted-foreground">Service Notice</p>
+                    <h1 class="mt-3 text-3xl font-bold">We hit a temporary problem</h1>
+                    <p class="mt-3 text-muted-foreground">
+                        The page could not be completed right now. You can return to the previous page, try again, or continue browsing the site.
+                    </p>
+                </div>
+
+                <div class="mb-6 rounded-xl bg-secondary/50 p-4 text-sm text-muted-foreground">
+                    <p><strong>Status:</strong> <span th:text="${status} ?: 'Unexpected error'">Unexpected error</span></p>
+                    <p th:if="${error}"><strong>Error:</strong> <span th:text="${error}">Server Error</span></p>
+                    <p th:if="${message}" class="mt-2" th:text="${message}">Please try again later.</p>
+                </div>
+
+                <div class="flex flex-wrap gap-3">
+                    <a th:href="@{/}" class="inline-flex h-10 items-center justify-center rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                        Go Home
+                    </a>
+                    <a th:href="@{/tours}" class="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary">
+                        Browse Tours
+                    </a>
+                    <a th:href="@{/contact}" class="inline-flex h-10 items-center justify-center rounded-md border border-border px-4 text-sm font-medium transition-colors hover:bg-secondary">
+                        Contact Support
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+</body>
+</html>
