@@ -1,0 +1,14 @@
+.git
+.github
+.playwright-cli
+node_modules
+frontend/node_modules
+backend/target
+target
+output
+test-results
+*.log
+*.pid
+README.md
+docs
+scripts

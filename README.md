@@ -95,6 +95,18 @@ From the repository root:
 .\scripts\build.ps1
 ```
 
+## Render Deployment
+
+This repository now includes a Render Blueprint in `render.yaml` and a Docker deploy path in `backend/Dockerfile`.
+
+- `wanderlust-travels` deploys as a public web service.
+- `wanderlust-mysql` deploys as a private MySQL service with a persistent disk.
+- Render will prompt for secrets such as `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `APP_NOTIFICATIONS_BASE_URL`, and optional SMTP credentials during setup.
+
+Open the Blueprint directly in Render:
+
+`https://dashboard.render.com/blueprint/new?repo=https://github.com/tapendra9104/Tour-and-Travel-Management-System`
+
 ## Maven Build
 
 From the repository root:
