@@ -13,10 +13,25 @@ This project is the uploaded travel UI rebuilt as a professional `Java + MySQL +
 
 ## Project Structure
 
-- `src/main/java` contains the Spring Boot backend, page controllers, booking API, services, and persistence layer.
-- `src/main/resources/templates` contains the HTML pages and shared Thymeleaf fragments.
-- `src/main/resources/static` contains the compiled CSS, JavaScript, and icon assets.
-- `src/main/resources/data/tours.json` contains the built-in catalog and is used to backfill missing default tours into MySQL on startup.
+- `backend/` contains the Spring Boot backend, database configuration, Flyway migrations, domain services, APIs, and tests.
+- `frontend/` contains the HTML templates, JavaScript, CSS source, compiled CSS, and frontend build tooling.
+- `docker-compose.yml` starts the MySQL database used by the backend.
+
+### Backend
+
+- `backend/src/main/java` contains controllers, services, security, booking, payments, notifications, inquiries, and waitlist logic.
+- `backend/src/main/resources/application.properties` contains environment-driven app configuration.
+- `backend/src/main/resources/data/tours.json` contains the built-in catalog seed data.
+- `backend/src/main/resources/db/migration` contains Flyway migrations.
+
+### Frontend
+
+- `frontend/src/templates` contains Thymeleaf pages and shared fragments.
+- `frontend/src/static/js` contains the frontend behavior for tours, booking, dashboard, and contact flows.
+- `frontend/src/static/css` contains Tailwind source and compiled CSS.
+- `frontend/src/static` also contains icon and image assets.
+
+The backend Maven build pulls templates and static assets directly from `frontend/` so the app still runs as a single Spring Boot application.
 
 ## Run Locally
 
@@ -29,13 +44,23 @@ $env:DB_USERNAME="wanderlust"
 $env:DB_PASSWORD="wanderlust"
 ```
 
-3. Run the app:
+3. Build the frontend CSS:
 
 ```powershell
+cd frontend
+npm install
+npm run build:css
+cd ..
+```
+
+4. Run the backend:
+
+```powershell
+cd backend
 mvn spring-boot:run
 ```
 
-4. Open `http://localhost:8080`
+5. Open `http://localhost:8080`
 
 ## Demo Accounts
 
@@ -47,8 +72,17 @@ mvn spring-boot:run
 If you update templates or frontend scripts and want to regenerate the stylesheet:
 
 ```powershell
-npm install
+cd frontend
 npm run build:css
+```
+
+## Maven Build
+
+From the repository root:
+
+```powershell
+mvn test
+mvn -pl backend -am package
 ```
 
 ## Notes

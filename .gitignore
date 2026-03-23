@@ -1,5 +1,7 @@
 /target/
+/backend/target/
 /node_modules/
+/frontend/node_modules/
 /source-original/
 /.idea/
 /.vscode/
