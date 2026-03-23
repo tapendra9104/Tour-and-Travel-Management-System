@@ -1,6 +1,6 @@
 # Wanderlust Travels
 
-This project is the uploaded travel UI rebuilt as a professional `Java + MySQL + HTML/CSS/JS` application.
+This project is the uploaded travel UI rebuilt as a professional `Java + MySQL + HTML/CSS/JS` application with a cleaner monorepo-style repository structure.
 
 ## Stack
 
@@ -15,6 +15,9 @@ This project is the uploaded travel UI rebuilt as a professional `Java + MySQL +
 
 - `backend/` contains the Spring Boot backend, database configuration, Flyway migrations, domain services, APIs, and tests.
 - `frontend/` contains the HTML templates, JavaScript, CSS source, compiled CSS, and frontend build tooling.
+- `docs/` contains architecture and repository structure documentation.
+- `scripts/` contains local developer workflow scripts for building, testing, and running the app.
+- `.github/workflows/` contains CI automation for GitHub.
 - `docker-compose.yml` starts the MySQL database used by the backend.
 
 ### Backend
@@ -32,6 +35,12 @@ This project is the uploaded travel UI rebuilt as a professional `Java + MySQL +
 - `frontend/src/static` also contains icon and image assets.
 
 The backend Maven build pulls templates and static assets directly from `frontend/` so the app still runs as a single Spring Boot application.
+
+## Repository Guides
+
+- `backend/README.md` explains the server-side module boundaries.
+- `frontend/README.md` explains the frontend asset and template module.
+- `docs/project-structure.md` documents the repository layout and organization principles.
 
 ## Run Locally
 
@@ -74,6 +83,16 @@ If you update templates or frontend scripts and want to regenerate the styleshee
 ```powershell
 cd frontend
 npm run build:css
+```
+
+## Developer Scripts
+
+From the repository root:
+
+```powershell
+.\scripts\dev.ps1 -StartDatabase
+.\scripts\test.ps1
+.\scripts\build.ps1
 ```
 
 ## Maven Build

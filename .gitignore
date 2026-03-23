@@ -12,3 +12,6 @@
 /.playwright-cli/
 /*.log
 /test-results/
+/backend/.env
+/logs/
+/*.pid
