@@ -3,26 +3,51 @@
 @source "../js/**/*.js";
 
 :root {
-  --background: oklch(0.985 0.002 90);
-  --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
-  --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
-  --popover-foreground: oklch(0.145 0 0);
-  --primary: oklch(0.55 0.15 160);
-  --primary-foreground: oklch(0.99 0 0);
-  --secondary: oklch(0.97 0.005 90);
-  --secondary-foreground: oklch(0.205 0 0);
-  --muted: oklch(0.96 0.005 90);
-  --muted-foreground: oklch(0.45 0 0);
-  --accent: oklch(0.72 0.18 45);
-  --accent-foreground: oklch(0.2 0 0);
-  --destructive: oklch(0.577 0.245 27.325);
-  --destructive-foreground: oklch(0.98 0 0);
-  --border: oklch(0.91 0.005 90);
-  --input: oklch(0.91 0.005 90);
-  --ring: oklch(0.55 0.15 160);
+  --app-vh: 1vh;
+  --background: #fbfaf7;
+  --foreground: #171717;
+  --card: #ffffff;
+  --card-foreground: #171717;
+  --popover: #ffffff;
+  --popover-foreground: #171717;
+  --primary: #16835c;
+  --primary-foreground: #fcfcfc;
+  --secondary: #f7f6f2;
+  --secondary-foreground: #282828;
+  --muted: #f4f3ef;
+  --muted-foreground: #646464;
+  --accent: #d69a2d;
+  --accent-foreground: #262626;
+  --destructive: #dc2626;
+  --destructive-foreground: #fafafa;
+  --border: #e8e6df;
+  --input: #e8e6df;
+  --ring: #16835c;
   --radius: 0.75rem;
+}
+
+@supports (color: oklch(0.55 0.15 160)) {
+  :root {
+    --background: oklch(0.985 0.002 90);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.55 0.15 160);
+    --primary-foreground: oklch(0.99 0 0);
+    --secondary: oklch(0.97 0.005 90);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.96 0.005 90);
+    --muted-foreground: oklch(0.45 0 0);
+    --accent: oklch(0.72 0.18 45);
+    --accent-foreground: oklch(0.2 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --destructive-foreground: oklch(0.98 0 0);
+    --border: oklch(0.91 0.005 90);
+    --input: oklch(0.91 0.005 90);
+    --ring: oklch(0.55 0.15 160);
+  }
 }
 
 @theme inline {
@@ -59,11 +84,16 @@
   }
 
   html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
     scroll-behavior: smooth;
   }
 
   body {
     @apply bg-background text-foreground;
+    min-width: 320px;
+    overflow-x: hidden;
+    color-scheme: light;
   }
 
   img {
@@ -80,9 +110,56 @@
   summary::-webkit-details-marker {
     display: none;
   }
+
+  :where(a, button, input, select, textarea) {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  :where(button, [role="button"], input, select, textarea) {
+    touch-action: manipulation;
+  }
+
+  :where(a, button, input, select, textarea):focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+  }
 }
 
 @layer components {
+  .site-header {
+    padding-top: env(safe-area-inset-top, 0px);
+  }
+
+  .mobile-sheet {
+    padding-left: env(safe-area-inset-left, 0px);
+  }
+
+  .mobile-sheet-panel {
+    width: min(20rem, calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px) - 1rem));
+    max-width: calc(100vw - env(safe-area-inset-left, 0px) - env(safe-area-inset-right, 0px));
+    padding-top: calc(1.5rem + env(safe-area-inset-top, 0px));
+    padding-right: calc(1.5rem + env(safe-area-inset-right, 0px));
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .compat-modal {
+    padding-top: calc(1rem + env(safe-area-inset-top, 0px));
+    padding-right: calc(1rem + env(safe-area-inset-right, 0px));
+    padding-bottom: calc(1rem + env(safe-area-inset-bottom, 0px));
+    padding-left: calc(1rem + env(safe-area-inset-left, 0px));
+  }
+
+  .compat-modal-panel {
+    max-height: calc(var(--app-vh) * 90 - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior-x: contain;
+  }
+
   #toursContainer,
   #noResults {
     overflow-anchor: none;
@@ -104,11 +181,23 @@
 
   .price-slider-track {
     width: 100%;
-    background: color-mix(in oklab, var(--secondary) 100%, transparent);
+    background: var(--secondary);
+  }
+
+  @supports (background: color-mix(in oklab, white 100%, transparent)) {
+    .price-slider-track {
+      background: color-mix(in oklab, var(--secondary) 100%, transparent);
+    }
   }
 
   .price-slider-range {
-    background: color-mix(in oklab, var(--primary) 100%, transparent);
+    background: var(--primary);
+  }
+
+  @supports (background: color-mix(in oklab, white 100%, transparent)) {
+    .price-slider-range {
+      background: color-mix(in oklab, var(--primary) 100%, transparent);
+    }
   }
 
   .price-slider input[type="range"] {
@@ -141,5 +230,44 @@
     box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
     pointer-events: auto;
     cursor: pointer;
+  }
+}
+
+@supports (min-height: 100dvh) {
+  .min-h-screen {
+    min-height: 100dvh;
+  }
+
+  .min-h-\[85vh\] {
+    min-height: 85dvh;
+  }
+
+  .h-\[50vh\] {
+    height: 50dvh;
+  }
+
+  .compat-modal-panel {
+    max-height: calc(90dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+  }
+}
+
+@media (pointer: coarse) {
+  :where(button, input, select, textarea) {
+    min-height: 44px;
+  }
+
+  :where(a.inline-flex, summary) {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
   }
 }

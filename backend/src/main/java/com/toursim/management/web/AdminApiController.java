@@ -27,6 +27,7 @@ import com.toursim.management.booking.dto.AdminReminderRequest;
 import com.toursim.management.booking.dto.BookingActivityResponse;
 import com.toursim.management.booking.dto.BookingOperationsUpdateRequest;
 import com.toursim.management.booking.dto.BookingResponse;
+import com.toursim.management.booking.dto.BookingStatusUpdateRequest;
 import com.toursim.management.inquiry.InquiryResponse;
 import com.toursim.management.inquiry.InquiryService;
 import com.toursim.management.inquiry.InquiryStatusUpdateRequest;
@@ -36,6 +37,7 @@ import com.toursim.management.payment.PaymentTransaction;
 import com.toursim.management.payment.dto.AdminPaymentRequest;
 import com.toursim.management.payment.dto.AdminRefundRequest;
 import com.toursim.management.payment.dto.PaymentActionResponse;
+import com.toursim.management.newsletter.NewsletterSubscriberRepository;
 import com.toursim.management.tour.Tour;
 import com.toursim.management.tour.TourCatalogService;
 import com.toursim.management.tour.dto.TourAdminRequest;
@@ -58,6 +60,7 @@ public class AdminApiController {
     private final WaitlistService waitlistService;
     private final AuthenticationFacade authenticationFacade;
     private final PaymentService paymentService;
+    private final NewsletterSubscriberRepository newsletterRepository;
 
     public AdminApiController(
         InquiryService inquiryService,
@@ -65,7 +68,8 @@ public class AdminApiController {
         TourCatalogService tourCatalogService,
         WaitlistService waitlistService,
         AuthenticationFacade authenticationFacade,
-        PaymentService paymentService
+        PaymentService paymentService,
+        NewsletterSubscriberRepository newsletterRepository
     ) {
         this.inquiryService = inquiryService;
         this.bookingService = bookingService;
@@ -73,6 +77,86 @@ public class AdminApiController {
         this.waitlistService = waitlistService;
         this.authenticationFacade = authenticationFacade;
         this.paymentService = paymentService;
+        this.newsletterRepository = newsletterRepository;
+    }
+
+    // --- Stats overview -------------------------------------------------------
+
+    @GetMapping("/stats")
+    public java.util.Map<String, Object> stats() {
+        java.util.List<com.toursim.management.booking.Booking> allBookings = bookingService.findAll();
+        long totalRevenue = allBookings.stream()
+            .filter(b -> b.getStatus() != com.toursim.management.booking.BookingStatus.CANCELLED)
+            .mapToLong(b -> b.getTotalPrice() == null ? 0 : b.getTotalPrice().longValue())
+            .sum();
+        return java.util.Map.of(
+            "totalBookings",     allBookings.size(),
+            "pendingBookings",   allBookings.stream().filter(b -> b.getStatus() == com.toursim.management.booking.BookingStatus.PENDING).count(),
+            "confirmedBookings", allBookings.stream().filter(b -> b.getStatus() == com.toursim.management.booking.BookingStatus.CONFIRMED).count(),
+            "cancelledBookings", allBookings.stream().filter(b -> b.getStatus() == com.toursim.management.booking.BookingStatus.CANCELLED).count(),
+            "totalRevenue",      totalRevenue,
+            "openInquiries",     inquiryService.findAll().stream().filter(i -> i.getStatus().name().equals("NEW") || i.getStatus().name().equals("IN_PROGRESS")).count(),
+            "waitlistEntries",   waitlistService.recentActiveEntries().size(),
+            "newsletterCount",   newsletterRepository.count(),
+            "totalTours",        tourCatalogService.findAll().size()
+        );
+    }
+
+    // --- Newsletter subscribers -----------------------------------------------
+
+    @GetMapping("/newsletter/subscribers")
+    public java.util.List<java.util.Map<String, Object>> newsletterSubscribers() {
+        return newsletterRepository.findAll().stream()
+            .map(s -> java.util.Map.<String, Object>of(
+                "id",           s.getId(),
+                "email",        s.getEmail(),
+                "subscribedAt", s.getSubscribedAt() != null ? s.getSubscribedAt().toString() : "",
+                "active",       s.isActive()
+            ))
+            .toList();
+    }
+
+    @GetMapping("/newsletter/subscribers/export")
+    public ResponseEntity<byte[]> exportNewsletterSubscribers() {
+        StringBuilder csv = new StringBuilder("Email,SubscribedAt,Active\n");
+        newsletterRepository.findAll().forEach(subscriber -> csv.append(escape(subscriber.getEmail())).append(',')
+            .append(escape(String.valueOf(subscriber.getSubscribedAt()))).append(',')
+            .append(subscriber.isActive())
+            .append('\n'));
+
+        return ResponseEntity.ok()
+            .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=newsletter-subscribers-export.csv")
+            .contentType(new MediaType("text", "csv", StandardCharsets.UTF_8))
+            .body(csv.toString().getBytes(StandardCharsets.UTF_8));
+    }
+
+    // --- All bookings (admin) -------------------------------------------------
+
+    @GetMapping("/bookings")
+    public java.util.List<BookingResponse> allBookings() {
+        java.util.Map<String, String> tourTitles = tourCatalogService.findAll().stream()
+            .collect(java.util.stream.Collectors.toMap(
+                com.toursim.management.tour.Tour::getId,
+                com.toursim.management.tour.Tour::getTitle));
+        return bookingService.findAll().stream()
+            .map(b -> BookingResponse.from(b,
+                tourTitles.getOrDefault(b.getTourId(), b.getTourId()),
+                paymentService.summarize(b)))
+            .toList();
+    }
+
+    @PatchMapping("/bookings/{id}/status")
+    public BookingResponse updateBookingStatus(
+            @PathVariable Long id,
+            @Valid @RequestBody BookingStatusUpdateRequest request) {
+        return toResponse(bookingService.updateStatus(id, request.status(), request.note(), requireAdmin()));
+    }
+
+    // --- Inquiries ------------------------------------------------------------
+
+    @GetMapping("/inquiries")
+    public java.util.List<InquiryResponse> allInquiries() {
+        return inquiryService.findAll().stream().map(InquiryResponse::from).toList();
     }
 
     @PatchMapping("/inquiries/{id}")
@@ -111,10 +195,13 @@ public class AdminApiController {
     @GetMapping("/bookings/export")
     public ResponseEntity<byte[]> exportBookings() {
         List<Booking> bookings = bookingService.findAll();
+        // Pre-load all tour titles in one query - eliminates N+1 (one SELECT per booking)
+        java.util.Map<String, String> tourTitles = tourCatalogService.findAll().stream()
+            .collect(java.util.stream.Collectors.toMap(Tour::getId, Tour::getTitle));
         java.util.Map<Long, PaymentSummary> paymentSummaries = paymentService.summarize(bookings);
         StringBuilder csv = new StringBuilder("Reference,Tour,Customer,Email,Phone,TravelDate,Travelers,Total,Status,Reason,PaymentStatus,PaidAmount,OutstandingAmount,DueNowAmount,DueDate,RefundableAmount,TransportMode,TransportClass,TransportStatus,DocumentsVerified,Priority,MealPreference,DietaryRestrictions,OccasionType,OccasionNotes,RoomPreference,TripStyle,TransferRequired,AssistanceNotes,TravelerNotes,OperationsNotes\n");
         for (Booking booking : bookings) {
-            String tourTitle = tourCatalogService.findById(booking.getTourId()).map(Tour::getTitle).orElse(booking.getTourId());
+            String tourTitle = tourTitles.getOrDefault(booking.getTourId(), booking.getTourId());
             PaymentSummary paymentSummary = paymentSummaries.get(booking.getId());
             csv.append(escape(booking.getBookingReference())).append(',')
                 .append(escape(tourTitle)).append(',')
@@ -159,10 +246,13 @@ public class AdminApiController {
     @GetMapping("/bookings/operations-export")
     public ResponseEntity<byte[]> exportOperations() {
         List<Booking> bookings = bookingService.findAll();
+        // Pre-load all tour titles in one query
+        java.util.Map<String, String> tourTitlesOps = tourCatalogService.findAll().stream()
+            .collect(java.util.stream.Collectors.toMap(Tour::getId, Tour::getTitle));
         java.util.Map<Long, PaymentSummary> paymentSummaries = paymentService.summarize(bookings);
         StringBuilder csv = new StringBuilder("Reference,Tour,Customer,TravelDate,Travelers,PaymentStatus,DueNowAmount,DueDate,RefundableAmount,TransportMode,TransportClass,TransportStatus,DocumentsVerified,Priority,MealPreference,DietaryRestrictions,OccasionType,OccasionNotes,RoomPreference,TripStyle,TransferRequired,AssistanceNotes,TravelerNotes,OperationsNotes\n");
         for (Booking booking : bookings) {
-            String tourTitle = tourCatalogService.findById(booking.getTourId()).map(Tour::getTitle).orElse(booking.getTourId());
+            String tourTitle = tourTitlesOps.getOrDefault(booking.getTourId(), booking.getTourId());
             PaymentSummary paymentSummary = paymentSummaries.get(booking.getId());
             csv.append(escape(booking.getBookingReference())).append(',')
                 .append(escape(tourTitle)).append(',')
@@ -259,13 +349,15 @@ public class AdminApiController {
     public ResponseEntity<byte[]> exportPayments() {
         List<Booking> bookings = bookingService.findAll();
         java.util.Map<Long, Booking> bookingsById = bookings.stream().collect(java.util.stream.Collectors.toMap(Booking::getId, java.util.function.Function.identity()));
+        java.util.Map<String, String> tourTitles = tourCatalogService.findAll().stream()
+            .collect(java.util.stream.Collectors.toMap(Tour::getId, Tour::getTitle));
         StringBuilder csv = new StringBuilder("TransactionReference,ReceiptNumber,BookingReference,Tour,Customer,Method,Stage,Amount,Currency,Provider,ProviderReference,CreatedAt,Actor,ActorRole,Note\n");
         for (PaymentTransaction transaction : paymentService.findAllTransactions()) {
             Booking booking = bookingsById.get(transaction.getBookingId());
             if (booking == null) {
                 continue;
             }
-            String tourTitle = tourCatalogService.findById(booking.getTourId()).map(Tour::getTitle).orElse(booking.getTourId());
+            String tourTitle = tourTitles.getOrDefault(booking.getTourId(), booking.getTourId());
             csv.append(escape(transaction.getTransactionReference())).append(',')
                 .append(escape(transaction.getReceiptNumber())).append(',')
                 .append(escape(booking.getBookingReference())).append(',')

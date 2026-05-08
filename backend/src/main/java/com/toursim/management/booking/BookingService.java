@@ -96,7 +96,8 @@ public class BookingService {
     @Transactional
     public BookingSubmissionResult createBooking(BookingRequest request, Optional<AppUser> actor) {
         Tour tour = requireTour(request.tourId());
-        BookingRequestContext requestContext = toRequestContext(request, actor);
+        Optional<AppUser> travelerActor = travelerActor(actor);
+        BookingRequestContext requestContext = toRequestContext(request, travelerActor);
 
         if (requestContext.guests() > tour.getMaxGroupSize()) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Guest count exceeds the tour group size");
@@ -107,11 +108,14 @@ public class BookingService {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Selected travel date is not available");
         }
 
-        int bookedSeats = bookingRepository.totalGuestsForDeparture(tour.getId(), requestContext.date());
+        // Acquire pessimistic write lock on existing bookings for this departure
+        // to prevent concurrent overbooking (check-then-act made atomic at DB level).
+        List<Booking> lockedBookings = bookingRepository.findAndLockForDeparture(tour.getId(), requestContext.date());
+        int bookedSeats = lockedBookings.stream().mapToInt(Booking::getGuests).sum();
         int remainingSeats = Math.max(0, tour.getMaxGroupSize() - bookedSeats);
 
         if (requestContext.guests() > remainingSeats) {
-            WaitlistEntry waitlistEntry = waitlistService.createWaitlistEntry(tour, requestContext, actor);
+            WaitlistEntry waitlistEntry = waitlistService.createWaitlistEntry(tour, requestContext, travelerActor);
             return new BookingSubmissionResult(
                 "waitlisted",
                 "This departure is full, so we saved your place on the waitlist.",
@@ -126,7 +130,7 @@ public class BookingService {
 
         Booking booking = new Booking();
         booking.setTourId(tour.getId());
-        booking.setUserId(actor.map(AppUser::getId).orElse(null));
+        booking.setUserId(travelerActor.map(AppUser::getId).orElse(null));
         booking.setCustomerName(requestContext.customerName());
         booking.setEmail(requestContext.email());
         booking.setPhone(requestContext.phone());
@@ -154,7 +158,7 @@ public class BookingService {
         booking.setStatusReason("Awaiting travel team confirmation");
         booking = bookingRepository.save(booking);
 
-        actor.ifPresent(appUser -> appUserService.syncProfile(appUser, requestContext.customerName(), requestContext.phone()));
+        travelerActor.ifPresent(appUser -> appUserService.syncProfile(appUser, requestContext.customerName(), requestContext.phone()));
 
         bookingActivityService.record(
             booking,
@@ -176,8 +180,8 @@ public class BookingService {
         }
         customerMessage += "\n\nWanderlust Travels";
 
-        if (actor.isPresent()) {
-            notificationService.notifyUser(actor.get(), NotificationCategory.BOOKING_RECEIVED, "Booking request received", customerMessage, booking.getId(), null);
+        if (travelerActor.isPresent()) {
+            notificationService.notifyUser(travelerActor.get(), NotificationCategory.BOOKING_RECEIVED, "Booking request received", customerMessage, booking.getId(), null);
         } else {
             notificationService.notifyGuest(booking.getEmail(), booking.getCustomerName(), NotificationCategory.BOOKING_RECEIVED, "Booking request received", customerMessage, booking.getId(), null);
         }
@@ -279,10 +283,8 @@ public class BookingService {
     @Transactional(readOnly = true)
     public List<Booking> stalePendingBookings(int olderThanHours) {
         LocalDateTime cutoff = LocalDateTime.now().minusHours(olderThanHours);
-        return bookingRepository.findAllByOrderByCreatedAtDesc().stream()
-            .filter(booking -> booking.getStatus() == BookingStatus.PENDING)
-            .filter(booking -> booking.getCreatedAt().isBefore(cutoff))
-            .toList();
+        // Uses a targeted DB query - avoids loading the full bookings table into memory.
+        return bookingRepository.findByStatusAndCreatedAtBefore(BookingStatus.PENDING, cutoff);
     }
 
     @Transactional
@@ -529,6 +531,10 @@ public class BookingService {
             request.guests(),
             request.date()
         );
+    }
+
+    private Optional<AppUser> travelerActor(Optional<AppUser> actor) {
+        return actor.filter(appUser -> appUser.getRole() != UserRole.ADMIN);
     }
 
     private String normalizeEmail(String email) {

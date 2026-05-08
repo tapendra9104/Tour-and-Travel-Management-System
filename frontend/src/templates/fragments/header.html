@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <body>
-<header th:fragment="siteHeader" class="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+<header th:fragment="siteHeader" class="site-header sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
     <div class="container mx-auto flex h-16 items-center justify-between px-4">
-        <a th:href="@{/}" class="flex items-center gap-2">
+        <a th:href="${isAdmin} ? @{/admin} : @{/}" class="flex items-center gap-2">
             <svg class="h-7 w-7 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                  stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                 <path d="M10 20a7.967 7.967 0 0 1-5-2l-3-3 3-3a7.967 7.967 0 0 1 5-2h4a7.967 7.967 0 0 1 5 2l3 3-3 3a7.967 7.967 0 0 1-5 2z"></path>
@@ -13,20 +13,22 @@
         </a>
 
         <nav class="hidden md:flex items-center gap-8">
-            <a th:href="@{/}" class="text-sm font-medium transition-colors hover:text-foreground"
+            <a th:if="${!isAdmin}" th:href="@{/}" class="text-sm font-medium transition-colors hover:text-foreground"
                th:classappend="${currentPage == 'home'} ? ' text-foreground' : ' text-muted-foreground'">Home</a>
-            <a th:href="@{/tours}" class="text-sm font-medium transition-colors hover:text-foreground"
+            <a th:if="${!isAdmin}" th:href="@{/tours}" class="text-sm font-medium transition-colors hover:text-foreground"
                th:classappend="${currentPage == 'tours'} ? ' text-foreground' : ' text-muted-foreground'">Tours</a>
-            <a th:href="@{/destinations}" class="text-sm font-medium transition-colors hover:text-foreground"
+            <a th:if="${!isAdmin}" th:href="@{/destinations}" class="text-sm font-medium transition-colors hover:text-foreground"
                th:classappend="${currentPage == 'destinations'} ? ' text-foreground' : ' text-muted-foreground'">Destinations</a>
-            <a th:href="@{/about}" class="text-sm font-medium transition-colors hover:text-foreground"
+            <a th:if="${!isAdmin}" th:href="@{/about}" class="text-sm font-medium transition-colors hover:text-foreground"
                th:classappend="${currentPage == 'about'} ? ' text-foreground' : ' text-muted-foreground'">About</a>
-            <a th:href="@{/contact}" class="text-sm font-medium transition-colors hover:text-foreground"
+            <a th:if="${!isAdmin}" th:href="@{/contact}" class="text-sm font-medium transition-colors hover:text-foreground"
                th:classappend="${currentPage == 'contact'} ? ' text-foreground' : ' text-muted-foreground'">Contact</a>
+            <a th:if="${isAdmin}" th:href="@{/admin}" class="text-sm font-medium transition-colors hover:text-foreground"
+               th:classappend="${currentPage == 'admin'} ? ' text-foreground text-primary' : ' text-primary'">Admin</a>
         </nav>
 
         <div class="hidden md:flex items-center gap-3">
-            <a th:href="@{/dashboard}" class="inline-flex">
+            <a th:if="${!isAdmin}" th:href="@{/dashboard}" class="inline-flex">
                 <span class="inline-flex h-9 items-center justify-center gap-2 rounded-md px-4 text-sm font-medium transition-colors hover:bg-secondary">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                          stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
@@ -37,6 +39,14 @@
                     </svg>
                     My Bookings
                 </span>
+            </a>
+            <a th:if="${isAuthenticated}" th:href="@{/profile}" class="inline-flex h-9 items-center justify-center gap-2 rounded-md px-3 text-sm font-medium transition-colors hover:bg-secondary" title="My Profile">
+                <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                     stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="12" cy="7" r="4"></circle>
+                </svg>
+                Profile
             </a>
             <a th:if="${!isAuthenticated}" th:href="@{/login}" class="inline-flex h-9 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90">
                 <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
@@ -68,11 +78,11 @@
         </button>
     </div>
 
-    <div class="fixed inset-0 z-[60] hidden" data-sheet="mobile-nav" aria-hidden="true">
+    <div class="mobile-sheet fixed inset-0 z-[60] hidden" data-sheet="mobile-nav" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Mobile navigation">
         <div class="absolute inset-0 bg-black/50" data-sheet-close></div>
-        <div class="absolute right-0 top-0 h-full w-[300px] translate-x-full bg-background p-6 shadow-xl transition-transform duration-300" data-sheet-panel>
+        <div class="mobile-sheet-panel absolute right-0 top-0 h-full translate-x-full overflow-y-auto bg-background p-6 shadow-xl transition-transform duration-300" data-sheet-panel>
             <div class="flex items-center justify-between">
-                <a th:href="@{/}" class="flex items-center gap-2">
+                <a th:href="${isAdmin} ? @{/admin} : @{/}" class="flex items-center gap-2">
                     <svg class="h-6 w-6 text-primary" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                          stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M10 20a7.967 7.967 0 0 1-5-2l-3-3 3-3a7.967 7.967 0 0 1 5-2h4a7.967 7.967 0 0 1 5 2l3 3-3 3a7.967 7.967 0 0 1-5 2z"></path>
@@ -90,15 +100,16 @@
             </div>
 
             <nav class="mt-8 flex flex-col gap-4">
-                <a th:href="@{/}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Home</a>
-                <a th:href="@{/tours}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Tours</a>
-                <a th:href="@{/destinations}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Destinations</a>
-                <a th:href="@{/about}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">About</a>
-                <a th:href="@{/contact}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Contact</a>
+                <a th:if="${!isAdmin}" th:href="@{/}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Home</a>
+                <a th:if="${!isAdmin}" th:href="@{/tours}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Tours</a>
+                <a th:if="${!isAdmin}" th:href="@{/destinations}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Destinations</a>
+                <a th:if="${!isAdmin}" th:href="@{/about}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">About</a>
+                <a th:if="${!isAdmin}" th:href="@{/contact}" class="text-base font-medium text-muted-foreground transition-colors hover:text-foreground">Contact</a>
+                <a th:if="${isAdmin}" th:href="@{/admin}" class="text-base font-semibold text-primary transition-colors hover:text-foreground">Admin Panel</a>
             </nav>
 
             <div class="mt-8 flex flex-col gap-3">
-                <a th:href="@{/dashboard}" class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-medium">
+                <a th:if="${!isAdmin}" th:href="@{/dashboard}" class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-medium">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
                          stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
                         <path d="M8 2v4"></path>
@@ -107,6 +118,14 @@
                         <path d="M3 10h18"></path>
                     </svg>
                     My Bookings
+                </a>
+                <a th:if="${isAuthenticated}" th:href="@{/profile}" class="inline-flex h-10 items-center justify-center gap-2 rounded-md border border-border px-4 text-sm font-medium">
+                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"
+                         stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                    My Profile
                 </a>
                 <a th:if="${!isAuthenticated}" th:href="@{/login}" class="inline-flex h-10 items-center justify-center gap-2 rounded-md bg-primary px-4 text-sm font-medium text-primary-foreground">
                     <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"

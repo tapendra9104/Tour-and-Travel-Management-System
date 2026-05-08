@@ -1,11 +1,19 @@
 (() => {
   const escapeHtml = (value) =>
     String(value ?? "")
-      .replaceAll("&", "&amp;")
-      .replaceAll("<", "&lt;")
-      .replaceAll(">", "&gt;")
-      .replaceAll('"', "&quot;")
-      .replaceAll("'", "&#39;");
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#39;");
+
+  const syncViewportUnit = () => {
+    const viewport = window.visualViewport;
+    const height = viewport?.height || window.innerHeight || document.documentElement.clientHeight;
+    if (height) {
+      document.documentElement.style.setProperty("--app-vh", `${height * 0.01}px`);
+    }
+  };
 
   const formatCurrency = (value) => {
     const amount = Number(value ?? 0);
@@ -134,7 +142,7 @@
       sheet.setAttribute("aria-hidden", "false");
       syncBodyScrollLock();
 
-      requestAnimationFrame(() => {
+      (window.requestAnimationFrame || window.setTimeout)(() => {
         const panel = sheet.querySelector("[data-sheet-panel]");
         if (!panel) {
           return;
@@ -215,6 +223,60 @@
     });
   };
 
+  const initNewsletterForm = () => {
+    const form = document.getElementById("newsletterForm");
+    const input = document.getElementById("newsletterEmail");
+    const success = document.getElementById("newsletterSuccess");
+    const error = document.getElementById("newsletterError");
+    const submit = form?.querySelector('button[type="submit"]');
+    if (!form || !input || !success || !error || !submit) {
+      return;
+    }
+
+    const clearMessages = () => {
+      success.classList.add("hidden");
+      error.classList.add("hidden");
+      success.textContent = "";
+      error.textContent = "";
+    };
+
+    input.addEventListener("input", clearMessages);
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      clearMessages();
+
+      const originalLabel = submit.textContent;
+      submit.disabled = true;
+      submit.textContent = "Subscribing...";
+
+      try {
+        const response = await fetch("/api/newsletter/subscribe", {
+          method: "POST",
+          headers: csrfHeaders({
+            "Content-Type": "application/json",
+          }),
+          body: JSON.stringify({ email: input.value.trim() }),
+        });
+
+        const data = await readJsonResponse(response);
+        if (!response.ok) {
+          throw new Error(apiErrorMessage(data, "Unable to subscribe right now."));
+        }
+
+        success.textContent = data?.message || "You're subscribed. Welcome to Wanderlust Travels.";
+        success.classList.remove("hidden");
+        form.reset();
+      } catch (newsletterError) {
+        error.textContent = newsletterError.message || "Unable to subscribe right now.";
+        error.classList.remove("hidden");
+      } finally {
+        submit.disabled = false;
+        submit.textContent = originalLabel;
+      }
+    });
+  };
+
   window.WanderlustUI = {
     escapeHtml,
     formatCurrency,
@@ -227,7 +289,13 @@
   };
 
   document.addEventListener("DOMContentLoaded", () => {
+    syncViewportUnit();
     initSheets();
     initTabs();
+    initNewsletterForm();
   });
+
+  window.addEventListener("resize", syncViewportUnit, { passive: true });
+  window.visualViewport?.addEventListener("resize", syncViewportUnit, { passive: true });
+  window.visualViewport?.addEventListener("scroll", syncViewportUnit, { passive: true });
 })();

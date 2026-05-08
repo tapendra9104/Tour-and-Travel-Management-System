@@ -21,6 +21,8 @@ projects:
                 - render.yaml
                 - .dockerignore
             envVars:
+              - key: SPRING_PROFILES_ACTIVE
+                value: prod
               - key: DB_URL
                 value: jdbc:mysql://wanderlust-mysql:3306/wanderlust?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
               - key: DB_USERNAME
@@ -30,14 +32,20 @@ projects:
                   name: wanderlust-mysql
                   type: pserv
                   envVarKey: MYSQL_PASSWORD
-              - key: APP_NOTIFICATIONS_ADMIN_EMAIL
-                value: admin@wanderlust.com
-              - key: APP_NOTIFICATIONS_SUPPORT_EMAIL
-                value: hello@wanderlust.com
-              - key: APP_NOTIFICATIONS_BRAND_NAME
-                value: Wanderlust Travels
-              - key: APP_NOTIFICATIONS_BASE_URL
+              - key: APP_BASE_URL
                 sync: false
+              - key: ADMIN_EMAIL
+                value: admin@wanderlust.com
+              - key: SUPPORT_EMAIL
+                value: hello@wanderlust.com
+              - key: MAIL_FROM
+                value: no-reply@wanderlust.com
+              - key: SEED_ADMIN_EMAIL
+                value: admin@wanderlust.com
+              - key: SEED_ADMIN_PASSWORD
+                sync: false
+              - key: SEED_ADMIN_NAME
+                value: Wanderlust Admin
               - key: MAIL_HOST
                 sync: false
               - key: MAIL_PORT
@@ -46,10 +54,6 @@ projects:
                 sync: false
               - key: MAIL_PASSWORD
                 sync: false
-              - key: MAIL_SMTP_AUTH
-                value: "true"
-              - key: MAIL_SMTP_STARTTLS
-                value: "true"
 
           - type: pserv
             name: wanderlust-mysql

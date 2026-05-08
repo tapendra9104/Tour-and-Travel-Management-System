@@ -25,6 +25,8 @@
         <section class="relative h-[50vh] md:h-[60vh]">
             <img th:src="${tour.image}" th:alt="${tour.title}" class="h-full w-full object-cover">
             <div class="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent"></div>
+
+
             <div class="absolute bottom-0 left-0 right-0 p-6 md:p-10">
                 <div class="container mx-auto">
                     <div class="mb-4 flex flex-wrap gap-2">
@@ -149,11 +151,7 @@
                                     class="space-y-4"
                                     th:attr="data-tour-id=${tour.id},
                                              data-tour-price=${tour.price},
-                                             data-tour-max-group=${tour.maxGroupSize},
-                                             data-payment-currency=${paymentCurrency},
-                                             data-payment-deposit-rate=${paymentDepositRate},
-                                             data-payment-full-payment-window-days=${paymentFullPaymentWindowDays},
-                                             data-payment-balance-due-days-before-departure=${paymentBalanceDueDaysBeforeDeparture}"
+                                             data-tour-max-group=${tour.maxGroupSize}"
                                 >
                                     <div class="space-y-2">
                                         <label for="customerName" class="text-sm font-medium">Full Name</label>
@@ -331,72 +329,6 @@
                                         </div>
                                     </div>
 
-                                    <section class="space-y-4 rounded-xl bg-secondary/40 p-4">
-                                        <div class="space-y-1">
-                                            <div class="flex items-center justify-between gap-3">
-                                                <h3 class="text-sm font-semibold">Payment</h3>
-                                                <span class="text-xs text-muted-foreground">Optional</span>
-                                            </div>
-                                            <p id="paymentPlanHint" class="text-xs text-muted-foreground">Reserve now and pay later, or add a payment during this booking request.</p>
-                                        </div>
-
-                                        <div id="paymentEstimateBox" class="rounded-lg bg-background px-3 py-3 text-sm">
-                                            <div class="flex items-center justify-between gap-3">
-                                                <span class="text-muted-foreground">Suggested amount due today</span>
-                                                <span id="paymentDueNowValue" class="font-semibold">$0</span>
-                                            </div>
-                                            <p id="paymentScheduleNote" class="mt-2 text-xs text-muted-foreground">Payment timing will update when you choose a date and traveler count.</p>
-                                        </div>
-
-                                        <label class="flex items-start gap-3 rounded-md border border-border bg-background px-3 py-3">
-                                            <input id="payNow" name="payNow" type="checkbox" class="mt-0.5 rounded border-border">
-                                            <span class="space-y-1">
-                                                <span class="block text-sm font-medium">Add payment with this booking</span>
-                                                <span class="block text-xs text-muted-foreground">Useful for deposit, full payment, or a custom advance amount.</span>
-                                            </span>
-                                        </label>
-
-                                        <div id="paymentFields" class="hidden space-y-4">
-                                            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                                                <div class="space-y-2">
-                                                    <label for="paymentMethod" class="text-sm font-medium">Payment Method</label>
-                                                    <select id="paymentMethod" name="paymentMethod" class="h-10 w-full rounded-md border border-border bg-background px-3">
-                                                        <option value="">Select a payment method</option>
-                                                        <option value="Card">Card</option>
-                                                        <option value="Credit Card">Credit Card</option>
-                                                        <option value="Debit Card">Debit Card</option>
-                                                        <option value="UPI">UPI</option>
-                                                        <option value="Net Banking">Net Banking</option>
-                                                        <option value="Bank Transfer">Bank Transfer</option>
-                                                        <option value="PayPal">PayPal</option>
-                                                        <option value="Google Pay">Google Pay</option>
-                                                        <option value="Apple Pay">Apple Pay</option>
-                                                        <option value="PhonePe">PhonePe</option>
-                                                        <option value="Paytm">Paytm</option>
-                                                        <option value="Amazon Pay">Amazon Pay</option>
-                                                        <option value="Venmo">Venmo</option>
-                                                        <option value="Cash App">Cash App</option>
-                                                        <option value="Zelle">Zelle</option>
-                                                        <option value="Wallet">Wallet</option>
-                                                        <option value="EMI">EMI</option>
-                                                        <option value="BNPL">BNPL</option>
-                                                        <option value="Cash">Cash</option>
-                                                        <option value="Cheque">Cheque</option>
-                                                    </select>
-                                                </div>
-                                                <div class="space-y-2">
-                                                    <label for="paymentAmount" class="text-sm font-medium">Amount</label>
-                                                    <input id="paymentAmount" name="paymentAmount" type="number" inputmode="decimal" min="0.01" step="0.01" placeholder="0.00" class="h-10 w-full rounded-md border border-border bg-background px-3">
-                                                </div>
-                                            </div>
-                                            <div class="space-y-2">
-                                                <label for="paymentNote" class="text-sm font-medium">Payment Note</label>
-                                                <input id="paymentNote" name="paymentNote" type="text" placeholder="Deposit, full payment, invoice reference, or booking note" class="h-10 w-full rounded-md border border-border bg-background px-3">
-                                            </div>
-                                            <p id="paymentInlineHint" class="text-xs text-muted-foreground">No payment will be collected until you choose a method and amount.</p>
-                                        </div>
-                                    </section>
-
                                     <div id="bookingError" class="hidden items-center gap-2 rounded-lg bg-destructive/10 p-3 text-sm text-destructive"></div>
                                     <div id="availabilityHint" class="rounded-lg bg-secondary/50 p-3 text-sm text-muted-foreground">
                                         Live availability is checked before your booking request is submitted.
@@ -406,7 +338,7 @@
                                         Book Now
                                     </button>
 
-                                    <p class="text-center text-xs text-muted-foreground">Your request will be reviewed by our travel team. Payments are optional at booking time, and waitlist requests are saved without charging you.</p>
+                                    <p class="text-center text-xs text-muted-foreground">Your request will be reviewed by our travel team before confirmation.</p>
                                 </form>
                             </div>
                         </div>

@@ -165,7 +165,7 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <div class="flex items-center justify-between">
               <div class="flex items-center gap-1.5">
-                <span class="text-accent">★</span>
+                <span class="text-accent">&#9733;</span>
                 <span class="font-medium">${escapeHtml(tour.rating)}</span>
                 <span class="text-sm text-muted-foreground">(${escapeHtml(tour.reviews)})</span>
               </div>

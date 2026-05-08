@@ -1,5 +1,6 @@
 /target/
 /backend/target/
+/backend/bin/
 /node_modules/
 /frontend/node_modules/
 /source-original/
@@ -11,7 +12,16 @@
 /output/
 /.playwright-cli/
 /*.log
+/*.db
 /test-results/
+/.env
+/.env.*
+!/.env.example
 /backend/.env
+/backend/.env.*
+/frontend/.env
+/frontend/.env.*
+/backend/startup-log.txt
 /logs/
 /*.pid
+/mysql-data/

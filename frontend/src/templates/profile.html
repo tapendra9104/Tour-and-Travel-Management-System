@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/head :: head(${pageTitle})}"></head>
+<body class="font-sans antialiased">
+<div class="min-h-screen flex flex-col">
+    <header th:replace="~{fragments/header :: siteHeader}"></header>
+
+    <main class="flex-1 bg-secondary/30">
+        <div class="container mx-auto max-w-3xl px-4 py-12">
+            <h1 class="mb-8 text-3xl font-bold">My Profile</h1>
+
+            <div class="grid gap-6 md:grid-cols-3">
+                <!-- Sidebar info -->
+                <div class="space-y-4 md:col-span-1">
+                    <div class="rounded-2xl bg-card p-6 shadow-sm text-center">
+                        <div class="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-primary/10 text-3xl font-bold text-primary"
+                             th:text="${#strings.substring(currentUserName, 0, 1).toUpperCase()}">A</div>
+                        <p class="font-semibold" th:text="${currentUserName}">Full Name</p>
+                        <p class="text-sm text-muted-foreground" th:text="${currentUserEmail}">email@example.com</p>
+                        <p class="mt-1 text-xs text-muted-foreground" th:text="${currentUserPhone}"></p>
+                        <hr class="my-4 border-border">
+                        <a th:href="@{/dashboard}" class="inline-flex h-9 w-full items-center justify-center rounded-lg border border-border text-sm font-medium transition-colors hover:bg-secondary">
+                            My Bookings
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Main forms -->
+                <div class="space-y-6 md:col-span-2">
+
+                    <!-- Profile update form -->
+                    <div class="rounded-2xl bg-card p-6 shadow-sm">
+                        <h2 class="mb-4 text-lg font-semibold">Personal Information</h2>
+
+                        <div th:if="${profileSuccess}" class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700" th:text="${profileSuccess}"></div>
+
+                        <form th:action="@{/profile}" method="post" class="space-y-4" th:object="${profileForm}">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                            <div class="space-y-2">
+                                <label for="fullName" class="text-sm font-medium">Full Name</label>
+                                <input id="fullName" type="text" name="fullName" th:field="*{fullName}"
+                                       class="h-11 w-full rounded-lg border border-border bg-background px-4 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <p th:if="${#fields.hasErrors('fullName')}" th:errors="*{fullName}" class="text-xs text-destructive"></p>
+                            </div>
+
+                            <div class="space-y-2">
+                                <label for="phone" class="text-sm font-medium">Phone <span class="text-muted-foreground">(optional)</span></label>
+                                <input id="phone" type="tel" name="phone" th:field="*{phone}"
+                                       placeholder="+1 (555) 000-0000"
+                                       class="h-11 w-full rounded-lg border border-border bg-background px-4 focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+
+                            <div class="space-y-2">
+                                <label class="text-sm font-medium">Email</label>
+                                <input type="email" th:value="${currentUserEmail}" disabled
+                                       class="h-11 w-full rounded-lg border border-border bg-secondary/50 px-4 text-muted-foreground cursor-not-allowed">
+                                <p class="text-xs text-muted-foreground">Email address cannot be changed.</p>
+                            </div>
+
+                            <button type="submit" class="inline-flex h-10 items-center justify-center rounded-lg bg-primary px-6 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90">
+                                Save Changes
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Change password form -->
+                    <div class="rounded-2xl bg-card p-6 shadow-sm">
+                        <h2 class="mb-4 text-lg font-semibold">Change Password</h2>
+
+                        <div th:if="${passwordSuccess}" class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700" th:text="${passwordSuccess}"></div>
+                        <div th:if="${passwordError}" class="mb-4 rounded-lg bg-destructive/10 p-3 text-sm text-destructive" th:text="${passwordError}"></div>
+
+                        <form th:action="@{/profile/password}" method="post" class="space-y-4">
+                            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
+
+                            <div class="space-y-2">
+                                <label for="currentPassword" class="text-sm font-medium">Current Password</label>
+                                <input id="currentPassword" type="password" name="currentPassword" autocomplete="current-password"
+                                       class="h-11 w-full rounded-lg border border-border bg-background px-4 focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+                            <div class="space-y-2">
+                                <label for="newPassword" class="text-sm font-medium">New Password</label>
+                                <input id="newPassword" type="password" name="newPassword" autocomplete="new-password"
+                                       class="h-11 w-full rounded-lg border border-border bg-background px-4 focus:outline-none focus:ring-2 focus:ring-primary">
+                                <p class="text-xs text-muted-foreground">Min 8 chars, uppercase, lowercase, and number</p>
+                            </div>
+                            <div class="space-y-2">
+                                <label for="confirmPassword" class="text-sm font-medium">Confirm New Password</label>
+                                <input id="confirmPassword" type="password" name="confirmPassword" autocomplete="new-password"
+                                       class="h-11 w-full rounded-lg border border-border bg-background px-4 focus:outline-none focus:ring-2 focus:ring-primary">
+                            </div>
+
+                            <button type="submit" class="inline-flex h-10 items-center justify-center rounded-lg border border-border px-6 text-sm font-medium transition-colors hover:bg-secondary">
+                                Change Password
+                            </button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer th:replace="~{fragments/footer :: siteFooter}"></footer>
+</div>
+</body>
+</html>

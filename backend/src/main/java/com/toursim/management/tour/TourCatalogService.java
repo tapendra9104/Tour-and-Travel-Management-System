@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
@@ -89,9 +91,10 @@ public class TourCatalogService {
         this.objectMapper = objectMapper;
     }
 
-    @PostConstruct
+    /** Called from {@link com.toursim.management.config.ApplicationDataInitializer} after full context startup,
+     * ensuring @Transactional proxy is active. Do NOT annotate with @PostConstruct. */
     @Transactional
-    void syncSeedCatalog() throws IOException {
+    public void syncSeedCatalog() throws IOException {
         ClassPathResource resource = new ClassPathResource("data/tours.json");
         try (InputStream inputStream = resource.getInputStream()) {
             List<Tour> seedTours = objectMapper.readValue(inputStream, new TypeReference<List<Tour>>() {
@@ -109,6 +112,7 @@ public class TourCatalogService {
         }
     }
 
+    @Cacheable("tours")
     @Transactional(readOnly = true)
     public List<Tour> findAll() {
         return loadTours(
@@ -128,10 +132,11 @@ public class TourCatalogService {
 
     @Transactional(readOnly = true)
     public List<Tour> featuredTours(int limit) {
-        return findAll().stream()
-            .sorted(Comparator.comparing(Tour::getRating).reversed().thenComparing(Tour::getReviews, Comparator.reverseOrder()))
-            .limit(limit)
-            .toList();
+        // Sort + limit pushed to DB - avoids loading entire catalog into memory.
+        return loadTours(
+            "SELECT id, category, country, description, destination, difficulty, duration, image, max_group_size, original_price, price, rating, reviews, title FROM tours ORDER BY rating DESC, reviews DESC LIMIT :limit",
+            new MapSqlParameterSource("limit", limit)
+        );
     }
 
     @Transactional(readOnly = true)
@@ -173,6 +178,7 @@ public class TourCatalogService {
             .toList();
     }
 
+    @CacheEvict(value = "tours", allEntries = true)
     @Transactional
     public Tour upsert(TourAdminRequest request) {
         String id = request.id() == null || request.id().isBlank()
@@ -233,6 +239,7 @@ public class TourCatalogService {
         return findById(id).orElseThrow();
     }
 
+    @CacheEvict(value = "tours", allEntries = true)
     @Transactional
     public void delete(String id) {
         jdbcTemplate.update("DELETE FROM tour_highlights WHERE tour_id = :id", new MapSqlParameterSource("id", id));
@@ -278,7 +285,15 @@ public class TourCatalogService {
         );
     }
 
+    /** Allowed child tables - guards against SQL injection via dynamic table name. */
+    private static final java.util.Set<String> ALLOWED_CHILD_TABLES = java.util.Set.of(
+        "tour_highlights", "tour_included"
+    );
+
     private void replaceChildRows(String tourId, String tableName, String valueColumn, List<String> values) {
+        if (!ALLOWED_CHILD_TABLES.contains(tableName)) {
+            throw new IllegalArgumentException("Unknown child table: " + tableName);
+        }
         jdbcTemplate.update("DELETE FROM " + tableName + " WHERE tour_id = :id", new MapSqlParameterSource("id", tourId));
         for (int index = 0; index < values.size(); index++) {
             jdbcTemplate.update(

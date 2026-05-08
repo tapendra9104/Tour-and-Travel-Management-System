@@ -1,5 +1,7 @@
 package com.toursim.management.config;
 
+import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
 
@@ -11,9 +13,17 @@ import jakarta.servlet.http.HttpServletRequest;
 public class GlobalModelAttributes {
 
     private final AuthenticationFacade authenticationFacade;
+    private final Environment environment;
+    private final boolean demoCredentialsEnabled;
 
-    public GlobalModelAttributes(AuthenticationFacade authenticationFacade) {
+    public GlobalModelAttributes(
+        AuthenticationFacade authenticationFacade,
+        Environment environment,
+        @Value("${app.demo-credentials.enabled:true}") boolean demoCredentialsEnabled
+    ) {
         this.authenticationFacade = authenticationFacade;
+        this.environment = environment;
+        this.demoCredentialsEnabled = demoCredentialsEnabled;
     }
 
     @ModelAttribute("isAuthenticated")
@@ -50,5 +60,13 @@ public class GlobalModelAttributes {
     @ModelAttribute("requestPath")
     public String requestPath(HttpServletRequest request) {
         return request.getRequestURI();
+    }
+
+    /**
+     * Show demo credentials only when explicitly enabled and not running prod.
+     */
+    @ModelAttribute("showDemoCredentials")
+    public boolean showDemoCredentials() {
+        return demoCredentialsEnabled && !environment.matchesProfiles("prod");
     }
 }

@@ -116,10 +116,13 @@ public class NotificationEmailRenderer {
         return switch (category) {
             case ACCOUNT_CREATED -> new EmailAction("Sign In", normalizeBaseUrl() + "/login");
             case INQUIRY_RECEIVED, INQUIRY_STATUS_CHANGED -> new EmailAction("Contact Support", normalizeBaseUrl() + "/contact");
-            case WAITLIST_JOINED, WAITLIST_AVAILABLE, BOOKING_RECEIVED, BOOKING_STATUS_CHANGED,
+            case WAITLIST_JOINED, WAITLIST_AVAILABLE, WAITLIST_NOTIFIED, BOOKING_RECEIVED, BOOKING_STATUS_CHANGED,
                 TRAVELER_PREFERENCES_UPDATED, PAYMENT_RECEIVED, PAYMENT_DUE, REFUND_PROCESSED, TRIP_REMINDER ->
                 new EmailAction("View My Bookings", normalizeBaseUrl() + "/dashboard");
             case ADMIN_ALERT, BOOKING_FAILED -> new EmailAction("Open Dashboard", normalizeBaseUrl() + "/dashboard");
+            case PASSWORD_RESET_REQUESTED, PASSWORD_RESET_COMPLETED ->
+                new EmailAction("Sign In", normalizeBaseUrl() + "/login");
+            case NEWSLETTER_SUBSCRIBED -> new EmailAction("Explore Tours", normalizeBaseUrl() + "/tours");
         };
     }
 

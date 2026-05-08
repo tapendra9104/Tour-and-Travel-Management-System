@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -76,12 +77,14 @@ public class PageController {
         Model model
     ) {
         addCommonModel(model, "tours", "Explore Our Tours");
-        model.addAttribute("tours", tourCatalogService.findAll());
+        // Call findAll() once - previously called twice (model + JSON)
+        java.util.List<com.toursim.management.tour.Tour> allTours = tourCatalogService.findAll();
+        model.addAttribute("tours", allTours);
         model.addAttribute("categories", tourCatalogService.categories());
         model.addAttribute("initialSearch", search);
         model.addAttribute("initialCategory", category);
         model.addAttribute("initialGuests", guests);
-        model.addAttribute("toursJson", writeJson(tourCatalogService.findAll()));
+        model.addAttribute("toursJson", writeJson(allTours));
         return "tours";
     }
 
@@ -145,6 +148,13 @@ public class PageController {
     public String contact(Model model) {
         addCommonModel(model, "contact", "Contact Us");
         return "contact";
+    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String adminPanel(Model model) {
+        addCommonModel(model, "admin", "Admin Control Panel");
+        return "admin";
     }
 
     private void addCommonModel(Model model, String currentPage, String pageTitle) {

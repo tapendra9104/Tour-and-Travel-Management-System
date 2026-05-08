@@ -4,9 +4,16 @@ import java.time.LocalDate;
 import java.util.Locale;
 import java.util.UUID;
 
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.stereotype.Component;
 
+/**
+ * Simulated payment gateway used in development and demo environments.
+ * Active by default (when {@code app.payments.gateway} is unset or set to {@code sandbox}).
+ * Switch to a real gateway by setting {@code PAYMENT_GATEWAY=stripe} (see StripePaymentGateway).
+ */
 @Component
+@ConditionalOnProperty(name = "app.payments.gateway", havingValue = "sandbox", matchIfMissing = true)
 public class SandboxPaymentGateway implements PaymentGateway {
 
     private static final String PROVIDER = "Wanderlust Sandbox Pay";

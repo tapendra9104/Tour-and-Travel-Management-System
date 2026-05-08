@@ -47,6 +47,19 @@ class AuthPageControllerTest {
     }
 
     @Test
+    void loginRedirectsAuthenticatedAdminsToAdminDashboard() {
+        AppUser admin = authenticatedUser();
+        admin.setRole(UserRole.ADMIN);
+        admin.setEmail("admin@wanderlust.com");
+        when(authenticationFacade.currentUser()).thenReturn(Optional.of(admin));
+        when(authenticationFacade.isAdmin()).thenReturn(true);
+
+        String viewName = authPageController.login(null, null, null, new ExtendedModelMap());
+
+        assertThat(viewName).isEqualTo("redirect:/admin");
+    }
+
+    @Test
     void registerFormRedirectsAuthenticatedUsersToDashboard() {
         when(authenticationFacade.currentUser()).thenReturn(Optional.of(authenticatedUser()));
 

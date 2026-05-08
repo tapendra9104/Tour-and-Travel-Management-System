@@ -43,6 +43,24 @@ PREPARE booking_status_reason_stmt FROM @booking_status_reason_sql;
 EXECUTE booking_status_reason_stmt;
 DEALLOCATE PREPARE booking_status_reason_stmt;
 
+CREATE TABLE IF NOT EXISTS inquiries (
+    id BIGINT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT NULL,
+    customer_name VARCHAR(120) NOT NULL,
+    email VARCHAR(254) NOT NULL,
+    phone VARCHAR(30) NOT NULL,
+    destination VARCHAR(120) NOT NULL,
+    travel_window VARCHAR(80) NOT NULL,
+    travelers INT NOT NULL,
+    message VARCHAR(2000) NOT NULL,
+    status VARCHAR(20) NOT NULL,
+    admin_notes VARCHAR(1000) NULL,
+    created_at DATETIME(6) NOT NULL,
+    updated_at DATETIME(6) NOT NULL,
+    INDEX idx_inquiries_email (email),
+    INDEX idx_inquiries_status (status)
+);
+
 SET @inquiry_user_id_exists = (
     SELECT COUNT(*)
     FROM information_schema.columns

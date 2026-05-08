@@ -1,5 +1,10 @@
 # Wanderlust Travels
 
+![CI](https://github.com/tapendra9104/Tour-and-Travel-Management-System/actions/workflows/ci.yml/badge.svg)
+![Java](https://img.shields.io/badge/Java-17-blue?logo=openjdk)
+![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.5-brightgreen?logo=springboot)
+![License](https://img.shields.io/badge/license-MIT-green)
+
 This project is the uploaded travel UI rebuilt as a professional `Java + MySQL + HTML/CSS/JS` application with a cleaner monorepo-style repository structure.
 
 ## Stack
@@ -45,7 +50,7 @@ The backend Maven build pulls templates and static assets directly from `fronten
 ## Run Locally
 
 1. Start MySQL and create a database named `wanderlust`, or use the defaults below.
-2. Set credentials if needed:
+2. Set credentials if needed. `.env.example` lists every supported environment variable:
 
 ```powershell
 $env:DB_URL="jdbc:mysql://localhost:3306/wanderlust?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC"
@@ -73,8 +78,12 @@ mvn spring-boot:run
 
 ## Demo Accounts
 
+Local development seeds these accounts by default:
+
 - Admin: `admin@wanderlust.com` / `Admin@123`
 - Traveler: `traveler@wanderlust.com` / `Traveler@123`
+
+In production, demo credential display is disabled and the traveler seed is disabled. Set `SEED_ADMIN_PASSWORD` to create an initial admin on a fresh production database.
 
 ## CSS Build
 
@@ -84,6 +93,16 @@ If you update templates or frontend scripts and want to regenerate the styleshee
 cd frontend
 npm run build:css
 ```
+
+## Device and Browser Compatibility
+
+The UI is hardened for current evergreen browsers across desktop, tablet, and mobile:
+
+- Desktop: Chrome, Edge, Brave, Firefox, and Safari on Windows and macOS.
+- Mobile and tablet: iPhone, iPad, Android phones, and Android tablets using Safari, Chrome, Firefox, Edge, and Brave.
+- Layout support includes responsive breakpoints, touch-friendly controls, horizontal table scrolling for admin data, iOS safe-area handling, dynamic mobile viewport height fixes, and reduced-motion fallbacks.
+
+The frontend declares this support in `frontend/package.json` through `browserslist`. Browsers that are end-of-life or missing modern JavaScript/CSS features may receive a simplified experience.
 
 ## Developer Scripts
 
@@ -101,7 +120,7 @@ This repository now includes a Render Blueprint in `render.yaml` and a Docker de
 
 - `wanderlust-travels` deploys as a public web service.
 - `wanderlust-mysql` deploys as a private MySQL service with a persistent disk.
-- Render will prompt for secrets such as `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `APP_NOTIFICATIONS_BASE_URL`, and optional SMTP credentials during setup.
+- Render will prompt for secrets such as `MYSQL_PASSWORD`, `MYSQL_ROOT_PASSWORD`, `APP_BASE_URL`, `SEED_ADMIN_PASSWORD`, and optional SMTP credentials during setup.
 
 Open the Blueprint directly in Render:
 
@@ -116,10 +135,51 @@ mvn test
 mvn -pl backend -am package
 ```
 
+## SMTP Email Setup
+
+Without SMTP, notifications are stored in the database but not delivered by email.
+Password reset emails require SMTP to be configured.
+
+**Gmail example** (use a [Google App Password](https://myaccount.google.com/apppasswords), not your account password):
+
+```powershell
+$env:MAIL_HOST="smtp.gmail.com"
+$env:MAIL_PORT="587"
+$env:MAIL_USERNAME="you@gmail.com"
+$env:MAIL_PASSWORD="xxxx-xxxx-xxxx-xxxx"
+$env:MAIL_FROM="no-reply@yourdomain.com"
+$env:APP_BASE_URL="https://yourdomain.com"
+```
+
+**Brevo / Sendinblue example:**
+
+```powershell
+$env:MAIL_HOST="smtp-relay.brevo.com"
+$env:MAIL_PORT="587"
+$env:MAIL_USERNAME="your-login@example.com"
+$env:MAIL_PASSWORD="your-brevo-smtp-key"
+```
+
+## Swagger UI / API Docs
+
+When running locally, the interactive API documentation is available at:
+
+```
+http://localhost:8080/swagger-ui.html
+```
+
+To disable Swagger UI in production:
+
+```powershell
+$env:SPRINGDOC_ENABLED="false"
+```
+
 ## Notes
 
 - Bookings, users, inquiries, notifications, waitlists, and tour management are stored in MySQL through JPA, JDBC, and Flyway.
 - Tour catalog content is served from MySQL; `tours.json` is the built-in source for default destinations and backfills any missing catalog entries.
 - The dashboard is role-aware: guests use booking reference lookup, travelers see only their own bookings, and admins can manage bookings, inquiries, exports, and the tour catalog.
 - SMTP email delivery is supported when `MAIL_*` environment variables are configured. Without SMTP, notifications are still stored in the app database.
+- Password reset emails use `APP_BASE_URL`; set it to the public production URL before launch.
+- The payment gateway defaults to `sandbox` mode (simulated, no real charges). Set `PAYMENT_GATEWAY=stripe` and configure `STRIPE_SECRET_KEY` to process real payments — see `StripePaymentGateway.java` for the full upgrade guide.
 - All visible generator branding and platform-specific code was removed from the converted application and cleaned from the project files.

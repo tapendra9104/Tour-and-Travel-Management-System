@@ -2,12 +2,36 @@
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head th:fragment="head(title)">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="theme-color" content="#16835c">
+    <meta name="color-scheme" content="light">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="description"
           content="Explore the world with curated tour packages, seamless booking, and unforgettable travel experiences.">
+    <!-- CSRF tokens for JS API calls -->
     <meta th:if="${_csrf != null}" name="_csrf" th:content="${_csrf.token}">
     <meta th:if="${_csrf != null}" name="_csrf_header" th:content="${_csrf.headerName}">
+    <!-- Open Graph -->
+    <meta property="og:type" content="website">
+    <meta property="og:site_name" content="Wanderlust Travels">
+    <meta property="og:title" th:content="${title} + ' | Wanderlust Travels'">
+    <meta property="og:description"
+          content="Discover the world's most breathtaking destinations with curated tours and seamless booking.">
+    <meta property="og:image" content="https://images.unsplash.com/photo-1476514525535-07fb3b4ae5f1?w=1200&q=80">
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" th:content="${title} + ' | Wanderlust Travels'">
+    <!-- Canonical: requestPath is injected by GlobalModelAttributes for every request -->
+    <link th:if="${requestPath != null}" rel="canonical" th:href="@{__${requestPath}__}">
+    <!-- No-index for auth pages -->
+    <meta th:if="${currentPage == 'login' or currentPage == 'register'}"
+          name="robots" content="noindex, nofollow">
+
     <title th:text="${title} + ' | Wanderlust Travels'">Wanderlust Travels</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Playfair+Display:wght@600;700&display=swap"

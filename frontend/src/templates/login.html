@@ -22,6 +22,9 @@
                 <div th:if="${hasLogout}" class="mb-4 rounded-lg bg-primary/10 p-3 text-sm text-primary">
                     You have been signed out.
                 </div>
+                <div th:if="${param.passwordReset != null}" class="mb-4 rounded-lg bg-green-50 p-3 text-sm text-green-700">
+                    Password reset successfully. Please sign in with your new password.
+                </div>
 
                 <form th:action="@{/login}" method="post" class="space-y-4">
                     <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">
@@ -30,7 +33,10 @@
                         <input id="username" name="username" type="email" required class="h-11 w-full rounded-lg border border-border bg-background px-4">
                     </div>
                     <div class="space-y-2">
-                        <label for="password" class="text-sm font-medium">Password</label>
+                        <div class="flex items-center justify-between">
+                            <label for="password" class="text-sm font-medium">Password</label>
+                            <a th:href="@{/forgot-password}" class="text-xs text-primary hover:underline">Forgot password?</a>
+                        </div>
                         <input id="password" name="password" type="password" required class="h-11 w-full rounded-lg border border-border bg-background px-4">
                     </div>
                     <label class="flex items-center gap-2 text-sm text-muted-foreground">
@@ -42,7 +48,9 @@
                     </button>
                 </form>
 
-                <div class="mt-6 rounded-xl bg-secondary/50 p-4 text-sm text-muted-foreground">
+                <!-- Demo credentials shown only in non-production environments -->
+                <div th:if="${showDemoCredentials}" class="mt-6 rounded-xl bg-secondary/50 p-4 text-sm text-muted-foreground">
+                    <p class="mb-1 text-xs font-semibold uppercase tracking-wide text-muted-foreground/70">Local Dev Accounts</p>
                     Demo admin: <strong>admin@wanderlust.com</strong> / <strong>Admin@123</strong><br>
                     Demo traveler: <strong>traveler@wanderlust.com</strong> / <strong>Traveler@123</strong>
                 </div>

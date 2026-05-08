@@ -9,6 +9,12 @@ output
 test-results
 *.log
 *.pid
+.env
+.env.*
+backend/.env
+backend/.env.*
+frontend/.env
+frontend/.env.*
 README.md
 docs
 scripts

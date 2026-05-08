@@ -294,12 +294,14 @@
                     <p class="mx-auto mb-6 max-w-lg text-muted-foreground">
                         Subscribe to our newsletter for the latest offers, travel tips, and destination inspiration.
                     </p>
-                    <form class="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
-                        <input type="email" placeholder="Enter your email" class="h-12 flex-1 rounded-lg border border-border bg-background px-4">
+                    <form id="newsletterForm" class="mx-auto flex max-w-md flex-col gap-3 sm:flex-row">
+                        <input id="newsletterEmail" name="email" type="email" required placeholder="Enter your email" class="h-12 flex-1 rounded-lg border border-border bg-background px-4">
                         <button type="submit" class="inline-flex h-12 items-center justify-center rounded-lg bg-primary px-6 font-medium text-primary-foreground transition-colors hover:bg-primary/90">
                             Subscribe
                         </button>
                     </form>
+                    <p id="newsletterSuccess" class="mx-auto mt-4 hidden max-w-md rounded-lg bg-green-50 p-3 text-sm text-green-700" aria-live="polite"></p>
+                    <p id="newsletterError" class="mx-auto mt-4 hidden max-w-md rounded-lg bg-destructive/10 p-3 text-sm text-destructive" aria-live="polite"></p>
                 </div>
             </div>
         </section>

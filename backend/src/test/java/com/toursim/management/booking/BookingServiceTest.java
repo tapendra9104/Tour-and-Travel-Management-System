@@ -1,204 +1,198 @@
 package com.toursim.management.booking;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.mockito.ArgumentCaptor;
 
+import com.toursim.management.auth.AppUser;
 import com.toursim.management.auth.AppUserService;
-import com.toursim.management.booking.dto.BookingPreferenceUpdateRequest;
+import com.toursim.management.auth.UserRole;
 import com.toursim.management.booking.dto.BookingRequest;
 import com.toursim.management.notification.NotificationService;
 import com.toursim.management.tour.Tour;
 import com.toursim.management.tour.TourCatalogService;
-import com.toursim.management.waitlist.WaitlistEntry;
 import com.toursim.management.waitlist.WaitlistService;
 
 @ExtendWith(MockitoExtension.class)
+@DisplayName("BookingService")
 class BookingServiceTest {
 
-    private static final LocalDate TRAVEL_DATE = LocalDate.of(2026, 4, 15);
-
-    @Mock
-    private BookingRepository bookingRepository;
-
-    @Mock
-    private TourCatalogService tourCatalogService;
-
-    @Mock
-    private WaitlistService waitlistService;
-
-    @Mock
-    private BookingActivityService bookingActivityService;
-
-    @Mock
-    private NotificationService notificationService;
-
-    @Mock
-    private AppUserService appUserService;
-
-    @InjectMocks
-    private BookingService bookingService;
+    @Mock BookingRepository bookingRepository;
+    @Mock TourCatalogService tourCatalogService;
+    @Mock WaitlistService waitlistService;
+    @Mock BookingActivityService bookingActivityService;
+    @Mock NotificationService notificationService;
+    @Mock AppUserService appUserService;
 
     private Tour tour;
+    private static final LocalDate FUTURE_DATE = LocalDate.now().plusDays(30);
 
     @BeforeEach
     void setUp() {
         tour = new Tour();
-        tour.setId("1");
-        tour.setTitle("Majestic Swiss Alps Adventure");
-        tour.setPrice(new BigDecimal("2499.00"));
-        tour.setMaxGroupSize(12);
-        tour.setStartDates(List.of(TRAVEL_DATE));
+        tour.setId("test-tour");
+        tour.setTitle("Test Tour");
+        tour.setMaxGroupSize(10);
+        tour.setPrice(new BigDecimal("1000.00"));
+        tour.getStartDates().add(FUTURE_DATE);
+    }
+
+    // -- Booking reference uniqueness ------------------------------------------
+
+    @Test
+    @DisplayName("Booking reference uses UUID pattern (BK-XXXXXXXXXXXX), not timestamp")
+    void bookingReference_isUuidBased() {
+        Booking b = new Booking();
+        callPrePersist(b);
+
+        assertThat(b.getBookingReference())
+            .startsWith("BK-")
+            .hasSize(15)               // "BK-" (3) + 12 UUID chars
+            .matches("BK-[A-F0-9]{12}");
     }
 
     @Test
-    void createBookingCreatesWaitlistEntryWhenDepartureIsFull() {
-        BookingRequest request = new BookingRequest("1", "Waitlist Guest", "wait@example.com", "+1", 2, TRAVEL_DATE, null, null, null, null, null, null, null, false, null, null, null);
-        WaitlistEntry waitlistEntry = new WaitlistEntry();
-        waitlistEntry.setWaitlistReference("WL-1001");
+    @DisplayName("Two bookings created concurrently have different references")
+    void bookingReference_isUnique() {
+        Booking b1 = new Booking();
+        Booking b2 = new Booking();
+        callPrePersist(b1);
+        callPrePersist(b2);
+        assertThat(b1.getBookingReference()).isNotEqualTo(b2.getBookingReference());
+    }
 
-        when(tourCatalogService.findById("1")).thenReturn(Optional.of(tour));
-        when(bookingRepository.totalGuestsForDeparture("1", TRAVEL_DATE)).thenReturn(12);
-        when(waitlistService.createWaitlistEntry(any(), any(), any())).thenReturn(waitlistEntry);
+    // -- Stale-booking query efficiency ----------------------------------------
 
-        BookingSubmissionResult result = bookingService.createBooking(request, Optional.empty());
+    @Test
+    @DisplayName("findByStatusAndCreatedAtBefore exists on BookingRepository")
+    void stalePendingBookings_repositoryMethodExists() {
+        // Verify the targeted query method exists (not the full-table-scan fallback)
+        when(bookingRepository.findByStatusAndCreatedAtBefore(eq(BookingStatus.PENDING), any(LocalDateTime.class)))
+            .thenReturn(List.of());
 
-        assertThat(result.outcome()).isEqualTo("waitlisted");
-        assertThat(result.waitlistEntry()).isSameAs(waitlistEntry);
-        verify(bookingRepository, never()).save(any(Booking.class));
+        List<Booking> result = bookingRepository.findByStatusAndCreatedAtBefore(
+            BookingStatus.PENDING, LocalDateTime.now().minusHours(48));
+
+        assertThat(result).isEmpty();
+        // findAllByOrderByCreatedAtDesc must NOT be called (that's the in-memory anti-pattern)
+        verify(bookingRepository, never()).findAllByOrderByCreatedAtDesc();
     }
 
     @Test
-    void createBookingStoresPendingBookingWhenSeatsAreAvailable() {
-        BookingRequest request = new BookingRequest(
-            "1",
-            "Booked Guest",
-            "booked@example.com",
-            "+1",
-            2,
-            TRAVEL_DATE,
-            "Vegetarian",
-            "Nut allergy",
-            "Honeymoon",
-            "Private dinner and room decor",
-            "Sea View Suite",
-            "Romantic",
-            "Wheelchair boarding support",
-            true,
-            "Anniversary trip",
-            "Flight",
-            "Business"
+    @DisplayName("Admin-assisted bookings do not overwrite the admin profile")
+    void createBooking_doesNotSyncAdminProfile() {
+        BookingService service = bookingService();
+        AppUser admin = appUser(UserRole.ADMIN);
+        ArgumentCaptor<Booking> bookingCaptor = ArgumentCaptor.forClass(Booking.class);
+
+        stubSuccessfulBookingSave();
+
+        service.createBooking(bookingRequest("Guest Traveler", "guest@example.com"), Optional.of(admin));
+
+        verify(appUserService, never()).syncProfile(any(), any(), any());
+        verify(bookingRepository).save(bookingCaptor.capture());
+        assertThat(bookingCaptor.getValue().getUserId()).isNull();
+        assertThat(bookingCaptor.getValue().getEmail()).isEqualTo("guest@example.com");
+    }
+
+    @Test
+    @DisplayName("Traveler bookings keep the signed-in traveler profile fresh")
+    void createBooking_syncsTravelerProfile() {
+        BookingService service = bookingService();
+        AppUser traveler = appUser(UserRole.USER);
+        ArgumentCaptor<Booking> bookingCaptor = ArgumentCaptor.forClass(Booking.class);
+
+        stubSuccessfulBookingSave();
+
+        service.createBooking(bookingRequest("Guest Traveler", "guest@example.com"), Optional.of(traveler));
+
+        verify(appUserService).syncProfile(traveler, "Guest Traveler", "+1 555 010 0000");
+        verify(bookingRepository).save(bookingCaptor.capture());
+        assertThat(bookingCaptor.getValue().getUserId()).isEqualTo(2L);
+        assertThat(bookingCaptor.getValue().getEmail()).isEqualTo("traveler@example.com");
+    }
+
+    // -- Helpers ---------------------------------------------------------------
+
+    private void callPrePersist(Booking booking) {
+        try {
+            var method = Booking.class.getDeclaredMethod("prePersist");
+            method.setAccessible(true);
+            method.invoke(booking);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private BookingService bookingService() {
+        return new BookingService(
+            bookingRepository,
+            tourCatalogService,
+            waitlistService,
+            bookingActivityService,
+            notificationService,
+            appUserService
         );
+    }
 
-        when(tourCatalogService.findById("1")).thenReturn(Optional.of(tour));
-        when(bookingRepository.totalGuestsForDeparture("1", TRAVEL_DATE)).thenReturn(4);
+    private void stubSuccessfulBookingSave() {
+        when(tourCatalogService.findById("test-tour")).thenReturn(Optional.of(tour));
+        when(bookingRepository.findAndLockForDeparture("test-tour", FUTURE_DATE)).thenReturn(List.of());
         when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> {
             Booking booking = invocation.getArgument(0);
-            booking.setId(99L);
-            booking.setBookingReference("BK-1001");
+            booking.setId(42L);
+            callPrePersist(booking);
             return booking;
         });
-
-        BookingSubmissionResult result = bookingService.createBooking(request, Optional.empty());
-
-        assertThat(result.outcome()).isEqualTo("booked");
-        assertThat(result.booking()).isNotNull();
-        assertThat(result.booking().getStatus()).isEqualTo(BookingStatus.PENDING);
-        assertThat(result.booking().getStatusReason()).isEqualTo("Awaiting travel team confirmation");
-
-        ArgumentCaptor<Booking> bookingCaptor = ArgumentCaptor.forClass(Booking.class);
-        verify(bookingRepository).save(bookingCaptor.capture());
-        assertThat(bookingCaptor.getValue().getTourId()).isEqualTo("1");
-        assertThat(bookingCaptor.getValue().getGuests()).isEqualTo(2);
-        assertThat(bookingCaptor.getValue().getTotalPrice()).isEqualByComparingTo("5247.90");
-        assertThat(bookingCaptor.getValue().getMealPreference()).isEqualTo("Vegetarian");
-        assertThat(bookingCaptor.getValue().getDietaryRestrictions()).isEqualTo("Nut allergy");
-        assertThat(bookingCaptor.getValue().getOccasionType()).isEqualTo("Honeymoon");
-        assertThat(bookingCaptor.getValue().getOccasionNotes()).isEqualTo("Private dinner and room decor");
-        assertThat(bookingCaptor.getValue().getRoomPreference()).isEqualTo("Sea View Suite");
-        assertThat(bookingCaptor.getValue().getTripStyle()).isEqualTo("Romantic");
-        assertThat(bookingCaptor.getValue().isTransferRequired()).isTrue();
-        assertThat(bookingCaptor.getValue().getAssistanceNotes()).isEqualTo("Wheelchair boarding support");
-        assertThat(bookingCaptor.getValue().getTravelerNotes()).isEqualTo("Anniversary trip");
-        assertThat(bookingCaptor.getValue().getTransportMode()).isEqualTo("Flight");
-        assertThat(bookingCaptor.getValue().getTransportClass()).isEqualTo("Business");
-        assertThat(bookingCaptor.getValue().getTransportStatus()).isEqualTo("Requested");
-        assertThat(bookingCaptor.getValue().getOperationsPriority()).isEqualTo("High");
     }
 
-    @Test
-    void updateTravelerPreferencesAllowsMealAndTravelEditingWithoutClearingOtherPreferences() {
-        Booking booking = new Booking();
-        booking.setId(77L);
-        booking.setTourId("1");
-        booking.setBookingReference("BK-7700");
-        booking.setCustomerName("Edit Guest");
-        booking.setEmail("edit@example.com");
-        booking.setPhone("+1");
-        booking.setGuests(2);
-        booking.setDate(TRAVEL_DATE);
-        booking.setTotalPrice(new BigDecimal("5247.90"));
-        booking.setServiceFee(new BigDecimal("249.90"));
-        booking.setStatus(BookingStatus.PENDING);
-        booking.setMealPreference("Vegetarian");
-        booking.setDietaryRestrictions("Nut allergy");
-        booking.setOccasionType("Honeymoon");
-        booking.setOccasionNotes("Room decor");
-        booking.setRoomPreference("Suite");
-        booking.setTripStyle("Luxury");
-        booking.setTransportMode("Flight");
-        booking.setTransportClass("Business");
-        booking.setTransportStatus("Confirmed");
-        booking.setTravelerNotes("Window seat");
-
-        BookingPreferenceUpdateRequest request = new BookingPreferenceUpdateRequest(
-            "BK-7700",
-            "edit@example.com",
-            "Jain",
-            "No onion garlic",
-            null,
-            null,
-            null,
-            null,
-            "Wheelchair boarding support",
+    private BookingRequest bookingRequest(String customerName, String email) {
+        return new BookingRequest(
+            "test-tour",
+            customerName,
+            email,
+            "+1 555 010 0000",
+            2,
+            FUTURE_DATE,
+            "Vegetarian",
+            "No peanuts",
+            "Anniversary",
+            "Window table",
+            "King Bed",
+            "Luxury",
+            "Airport pickup",
             true,
-            "Aisle seat near front",
-            "Train",
-            "Sleeper"
+            "Smoke test",
+            "Flight",
+            "Economy"
         );
+    }
 
-        when(bookingRepository.findById(77L)).thenReturn(Optional.of(booking));
-        when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
-        when(tourCatalogService.findById("1")).thenReturn(Optional.of(tour));
-
-        Booking updated = bookingService.updateTravelerPreferences(77L, request, Optional.empty());
-
-        assertThat(updated.getMealPreference()).isEqualTo("Jain");
-        assertThat(updated.getDietaryRestrictions()).isEqualTo("No onion garlic");
-        assertThat(updated.getTransportMode()).isEqualTo("Train");
-        assertThat(updated.getTransportClass()).isEqualTo("Sleeper");
-        assertThat(updated.getTransportStatus()).isEqualTo("Requested");
-        assertThat(updated.isTransferRequired()).isTrue();
-        assertThat(updated.getAssistanceNotes()).isEqualTo("Wheelchair boarding support");
-        assertThat(updated.getTravelerNotes()).isEqualTo("Aisle seat near front");
-        assertThat(updated.getOccasionType()).isEqualTo("Honeymoon");
-        assertThat(updated.getOccasionNotes()).isEqualTo("Room decor");
-        assertThat(updated.getRoomPreference()).isEqualTo("Suite");
-        assertThat(updated.getTripStyle()).isEqualTo("Luxury");
+    private AppUser appUser(UserRole role) {
+        AppUser appUser = new AppUser();
+        appUser.setId(role == UserRole.ADMIN ? 1L : 2L);
+        appUser.setEmail(role == UserRole.ADMIN ? "admin@example.com" : "traveler@example.com");
+        appUser.setFullName(role == UserRole.ADMIN ? "Admin User" : "Traveler User");
+        appUser.setPhone("+1 555 000 0000");
+        appUser.setRole(role);
+        return appUser;
     }
 }

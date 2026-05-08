@@ -3,6 +3,7 @@ package com.toursim.management.booking;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalDate;
+import java.util.UUID;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -114,7 +115,7 @@ public class Booking {
     @PrePersist
     void prePersist() {
         if (bookingReference == null || bookingReference.isBlank()) {
-            bookingReference = "BK-" + System.currentTimeMillis();
+            bookingReference = "BK-" + UUID.randomUUID().toString().replace("-", "").substring(0, 12).toUpperCase();
         }
         if (transportStatus == null || transportStatus.isBlank()) {
             transportStatus = "Not Required";

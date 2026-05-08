@@ -43,7 +43,7 @@ public class AuthPageController {
         Model model
     ) {
         if (authenticationFacade.currentUser().isPresent()) {
-            return "redirect:/dashboard";
+            return authenticationFacade.isAdmin() ? "redirect:/admin" : "redirect:/dashboard";
         }
         model.addAttribute("currentPage", "login");
         model.addAttribute("pageTitle", "Sign In");
@@ -56,7 +56,7 @@ public class AuthPageController {
     @GetMapping("/register")
     public String registerForm(Model model) {
         if (authenticationFacade.currentUser().isPresent()) {
-            return "redirect:/dashboard";
+            return authenticationFacade.isAdmin() ? "redirect:/admin" : "redirect:/dashboard";
         }
         populateRegisterModel(model, new RegistrationRequest("", "", "", ""), false);
         return "register";
@@ -69,7 +69,7 @@ public class AuthPageController {
         Model model
     ) {
         if (authenticationFacade.currentUser().isPresent()) {
-            return "redirect:/dashboard";
+            return authenticationFacade.isAdmin() ? "redirect:/admin" : "redirect:/dashboard";
         }
         populateRegisterModel(model, registrationRequest, bindingResult.hasErrors());
 
