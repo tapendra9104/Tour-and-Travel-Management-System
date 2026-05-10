@@ -1,0 +1,34 @@
+# Fly.io deployment configuration for Wanderlust Travels
+# Docs: https://fly.io/docs/reference/configuration/
+
+app = "wanderlust-travels"
+primary_region = "bom"   # Mumbai — closest to India
+
+[build]
+  dockerfile    = "backend/Dockerfile"
+  ignorefile    = ".dockerignore"
+
+# Static env vars — secrets are set via: flyctl secrets set KEY=value
+[env]
+  PORT                   = "8080"
+  SPRING_PROFILES_ACTIVE = "prod"
+  SPRINGDOC_ENABLED      = "false"
+
+# HTTP service — Fly routes public HTTPS → internal port 8080
+[http_service]
+  internal_port        = 8080
+  force_https          = true
+  auto_stop_machines   = "stop"   # machine idles when no traffic (saves cost)
+  auto_start_machines  = true
+  min_machines_running = 0
+
+  [http_service.concurrency]
+    type       = "connections"
+    hard_limit = 25
+    soft_limit = 20
+
+# VM size — 512 MB is minimum for Spring Boot to run comfortably
+[[vm]]
+  memory   = "512mb"
+  cpu_kind = "shared"
+  cpus     = 1

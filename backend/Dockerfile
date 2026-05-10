@@ -25,6 +25,12 @@ WORKDIR /app
 
 COPY --from=backend-builder /workspace/backend/target/wanderlust-travels-backend-1.0.0.jar /app/app.jar
 
-EXPOSE 10000
+EXPOSE 8080
 
-CMD ["sh", "-c", "java -Dserver.port=${PORT:-10000} -jar /app/app.jar"]
+CMD ["sh", "-c", "java \
+  -Xmx320m \
+  -Xms64m \
+  -XX:MaxMetaspaceSize=128m \
+  -XX:+UseG1GC \
+  -Dserver.port=${PORT:-8080} \
+  -jar /app/app.jar"]
