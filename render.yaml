@@ -6,13 +6,12 @@ projects:
           - type: web
             name: wanderlust-travels
             runtime: docker
-            plan: free
+            plan: starter
             region: oregon
             branch: main
             autoDeployTrigger: commit
             dockerfilePath: ./backend/Dockerfile
             dockerContext: .
-            healthCheckPath: /health
             buildFilter:
               paths:
                 - backend/**
